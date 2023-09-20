@@ -73,6 +73,7 @@ int main() {
 
         TopTools_ListOfShape shells = Utils::splitShapeIntoShells(shape);
         TopTools_ListIteratorOfListOfShape shapeIterator = shells;
+        std::string namePart = "";
         while (shapeIterator.More())
         {
             const TopoDS_Shape& kShape = shapeIterator.Value();
@@ -85,6 +86,8 @@ int main() {
 
             std::cout << "Press enter to show the next shape" << std::endl;
             std::cin.ignore();
+
+            aContext->Erase(kShapeObj, true);
 
             shapeIterator.Next();
         }
