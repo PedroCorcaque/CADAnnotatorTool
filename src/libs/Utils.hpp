@@ -7,10 +7,17 @@
 #include <STEPControl_Reader.hxx>
 #include <IFSelect_ReturnStatus.hxx>
 #include <TopoDS_Shape.hxx>
+#include <TopTools_ListOfShape.hxx>
+#include <TopoDS_Compound.hxx>
+#include <BRep_Builder.hxx>
+#include <TopExp_Explorer.hxx>
+#include <TopoDS_Solid.hxx>
+#include <TopoDS.hxx>
 
 namespace Utils 
 {
-    std::vector<TopoDS_Shape> readStepFile(std::string stepFilePath);
-}
+    TopTools_ListOfShape readStepFile(std::string stepFilePath);
+    TopTools_ListOfShape splitShapeIntoShells(const TopoDS_Shape& shape);
+}   
 
 #endif

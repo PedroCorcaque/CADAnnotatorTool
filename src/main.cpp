@@ -16,12 +16,15 @@
 #include <Xw_Window.hxx>
 #include <X11/Xlib.h>
 
+unsigned int WIDTH = 1280;
+unsigned int HEIGHT = 768;
+
 int main() {
     std::string filename = "/home/user/Workspace/aeroscan/data/LS3DC/step/64.stp"; // Filename - Cannot use the $HOME as path (???)
-    std::vector<TopoDS_Shape> shapes;   // A list of shapes
+    TopTools_ListOfShape shapes;   // A list of shapes
 
     shapes = Utils::readStepFile(filename);
-    if (shapes.size() == 0)
+    if (shapes.Size() == 0)
     {
         std::cerr << "There is no shape to process." << std::endl;
         return 1;
@@ -35,7 +38,7 @@ int main() {
          */
 
         Handle(Aspect_DisplayConnection) aDisplay = new Aspect_DisplayConnection();
-        Handle(Aspect_Window) theWindow = new Xw_Window (aDisplay, "CADAnnotator", 0, 0, 512, 512);
+        Handle(Aspect_Window) theWindow = new Xw_Window (aDisplay, "CADAnnotator", 0, 0, WIDTH, HEIGHT);
         theWindow->Map();
         while(!theWindow->IsMapped())
         {
@@ -56,6 +59,7 @@ int main() {
         aView->SetBackgroundColor (Quantity_NOC_GRAY50);
         aView->Camera()->SetProjectionType (Graphic3d_Camera::Projection_Orthographic);
         aView->TriedronDisplay();
+        aView->Zoom(200, 200, 10, 10);
 
         /**
          * Interactive Objects
@@ -65,8 +69,28 @@ int main() {
         Handle(AIS_InteractiveContext) aContext = new AIS_InteractiveContext (v3dViewer);
         Handle(AIS_InteractiveObject) aShape = new AIS_Shape (shape);  // Receive a shape
         aContext->Display(aShape, AIS_Shaded, 0, true);
+        aContext->SetColor(aShape, Quantity_NOC_WHITE, true);
 
-        std::cout << "The window is ready" << std::endl;
+        TopTools_ListOfShape shells = Utils::splitShapeIntoShells(shape);
+        TopTools_ListIteratorOfListOfShape shapeIterator = shells;
+        while (shapeIterator.More())
+        {
+            const TopoDS_Shape& kShape = shapeIterator.Value();
+
+            Handle(AIS_InteractiveObject) kShapeObj = new AIS_Shape(kShape);
+            kShapeObj->SetColor(Quantity_NOC_RED);
+            // aContext->SetColor(kShapeObj, Quantity_NOC_RED, true);
+            aContext->Display(kShapeObj, Standard_True);
+            aContext->UpdateCurrentViewer();
+
+            std::cout << "Press enter to show the next shape" << std::endl;
+            std::cin.ignore();
+
+            shapeIterator.Next();
+        }
+
+        
+
         std::cin.ignore();
     }
     

@@ -1,11 +1,11 @@
 #include "Utils.hpp"
 
-std::vector<TopoDS_Shape> Utils::readStepFile(std::string stepFilePath)
+TopTools_ListOfShape Utils::readStepFile(std::string stepFilePath)
 {
     STEPControl_Reader stepControlReader;
     IFSelect_ReturnStatus ifSelectReturnStatusEnum;
     Standard_Integer result, numberShapes;
-    std::vector<TopoDS_Shape> shapes;
+    TopTools_ListOfShape shapes;
 
     ifSelectReturnStatusEnum = stepControlReader.ReadFile(stepFilePath.c_str());
 
@@ -42,7 +42,7 @@ std::vector<TopoDS_Shape> Utils::readStepFile(std::string stepFilePath)
                 else if (numberShapes == 1)
                 {
                     TopoDS_Shape shape = stepControlReader.Shape(1);
-                    shapes.push_back(shape);
+                    shapes.Append(shape);
                     break;
                 }
                 else
@@ -56,7 +56,7 @@ std::vector<TopoDS_Shape> Utils::readStepFile(std::string stepFilePath)
                         TopoDS_Shape shape_k = stepControlReader.Shape(k);
                         if (!shape_k.IsNull())
                         {
-                            shapes.push_back(shape_k);
+                            shapes.Append(shape_k);
                         }
                     }
                     std::cout << "Returning a list of shapes" << std::endl;
@@ -85,4 +85,33 @@ std::vector<TopoDS_Shape> Utils::readStepFile(std::string stepFilePath)
     }
 
     return shapes;
+}
+
+TopTools_ListOfShape Utils::splitShapeIntoShells(const TopoDS_Shape& shape)
+{
+    TopTools_ListOfShape shells;
+
+    TopoDS_Compound compound;
+    BRep_Builder builder;
+    builder.MakeCompound(compound);
+    builder.Add(compound, shape);
+
+    TopExp_Explorer explorer(compound, TopAbs_SOLID);
+    while (explorer.More())
+    {
+        const TopoDS_Solid& solid = TopoDS::Solid(explorer.Current());
+        // TopExp_Explorer shellExplorer(solid, TopAbs_SHELL);
+        // while (shellExplorer.More())
+        // {
+        //     const TopoDS_Shell& shell = TopoDS::Shell(shellExplorer.Current());
+        //     shells.Append(shell);
+
+        //     shellExplorer.Next();
+        // }
+        shells.Append(solid);
+
+        explorer.Next();
+    }
+
+    return shells;
 }
