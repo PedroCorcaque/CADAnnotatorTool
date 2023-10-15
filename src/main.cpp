@@ -50,6 +50,7 @@ int main() {
     theView->Zoom(200, 200, 10, 10);
 
     Handle(AIS_InteractiveContext) theCtx = new AIS_InteractiveContext (aViewer);
+
     for (XCAFPrs_DocumentExplorer aDocExp (anXdeDoc, XCAFPrs_DocumentExplorerFlags_None);
          aDocExp.More(); 
          aDocExp.Next())
@@ -59,15 +60,18 @@ int main() {
         Handle(XCAFPrs_AISObject) aPrs = new XCAFPrs_AISObject (aNode.RefLabel);
         aPrs->SetLocalTransformation (aNode.Location);
         aPrs->SetOwner (new TCollection_HAsciiString (aNode.Id));
-        theCtx->Display (aPrs, AIS_Shaded, 0, false); // segmentation fault
-        theCtx->SetColor (aPrs, Quantity_NOC_RED, true);
+        theCtx->Display (aPrs, AIS_Shaded, 0, false); // segmentation fault - solved (the context must be created with a viewer and a window)
+        theCtx->SetColor (aPrs, Quantity_NOC_WHITE, true);
 
+        theView->FitAll(0.01, false);
+        theView->Redraw();
+
+        std::cout << "To next, press Enter..." << std::endl;
         std::cin.ignore();
 
         theCtx->Erase (aPrs, true);
     }
-    theView->FitAll(0.01, false);
-    theView->Redraw();
+    
     
     return 0;
 }
