@@ -1,77 +1,68 @@
-#include <iostream>
+#include <Viewer.hpp>
+#include <Utils.hpp>
 
-#include "Utils.hpp" // readStepFile
+int main(int argc, char** argv) 
+{
+    OSD::SetSignal (false);
 
-#include <AIS.hxx>
-#include <AIS_Shape.hxx>
-#include <AIS_InteractiveContext.hxx>
-#include <AIS_InteractiveObject.hxx>
-#include <Graphic3d_GraphicDriver.hxx>
-#include <Aspect_DisplayConnection.hxx>
-#include <OpenGl_GraphicDriver.hxx>
-#include <V3d_View.hxx>
-#include <V3d_Viewer.hxx>
-#include <Aspect_Window.hxx>
+    std::vector<TCollection_AsciiString> anArgs;
+    Utils::fillAppArguments(anArgs, argc, argv);
 
-#include <fstream>
-#include <Standard_OStream.hxx>
-
-#include <Xw_Window.hxx>
-#include <X11/Xlib.h>
-
-unsigned int WIDTH = 1280;
-unsigned int HEIGHT = 768;
-
-int main() {
-    std::string filename = "/home/user/Workspace/aeroscan/data/LS3DC/step/64.stp"; // Filename - Cannot use the $HOME as path (???)
-    Handle_TDocStd_Document anXdeDoc;
-
-    anXdeDoc = Utils::readStepCafFile(filename);
-
-    Handle(Aspect_DisplayConnection) aDisplay = new Aspect_DisplayConnection();
-    Handle(Aspect_Window) aWindow = new Xw_Window (aDisplay, "CADAnnotator", 0, 0, WIDTH, HEIGHT);
-    aWindow->Map();
-    while (!aWindow->IsMapped()) {}
-
-    Handle(OpenGl_GraphicDriver) aGlDriver = new OpenGl_GraphicDriver(aDisplay);
-    aGlDriver->ChangeOptions().swapInterval = 1;
-    Handle(Graphic3d_GraphicDriver) aDriver = aGlDriver;
-    Handle(V3d_Viewer) aViewer = new V3d_Viewer (aDriver);
-    aViewer->SetDefaultLights();
-    aViewer->SetLightOn();
-    Handle(V3d_View) theView  = new V3d_View (aViewer);
-    theView->SetImmediateUpdate(false);
-    theView->SetShadingModel(Graphic3d_TOSM_FRAGMENT);
-    
-    theView->SetWindow(aWindow);    // Causing a segmentation fault if the Window is a null pointer
-    theView->SetBackgroundColor (Quantity_NOC_GRAY50);
-    theView->Camera()->SetProjectionType (Graphic3d_Camera::Projection_Orthographic);
-    theView->TriedronDisplay();
-    theView->Zoom(200, 200, 10, 10);
-
-    Handle(AIS_InteractiveContext) theCtx = new AIS_InteractiveContext (aViewer);
-
-    for (XCAFPrs_DocumentExplorer aDocExp (anXdeDoc, XCAFPrs_DocumentExplorerFlags_None);
-         aDocExp.More(); 
-         aDocExp.Next())
+    TCollection_AsciiString aModelPath;
+    if (anArgs.size() > 2)
     {
-        const XCAFPrs_DocumentNode& aNode = aDocExp.Current();
-        if (aNode.IsAssembly) { continue; }
-        Handle(XCAFPrs_AISObject) aPrs = new XCAFPrs_AISObject (aNode.RefLabel);
-        aPrs->SetLocalTransformation (aNode.Location);
-        aPrs->SetOwner (new TCollection_HAsciiString (aNode.Id));
-        theCtx->Display (aPrs, AIS_Shaded, 0, false); // segmentation fault - solved (the context must be created with a viewer and a window)
-        theCtx->SetColor (aPrs, Quantity_NOC_WHITE, true);
-
-        theView->FitAll(0.01, false);
-        theView->Redraw();
-
-        std::cout << "To next, press Enter..." << std::endl;
-        std::cin.ignore();
-
-        theCtx->Erase (aPrs, true);
+        Message::SendFail() << "Syntax error: wrong number of arguments";
+        return 1;
     }
-    
-    
+
+    if (anArgs.size() == 2)
+    {
+        aModelPath = anArgs[1];
+    }
+    else
+    {
+        OSD_Environment aVarModDir ("STEP_DIR");
+        if (!aVarModDir.Value().IsEmpty())
+        {
+            aModelPath = aVarModDir.Value() + "64.stp";
+        }
+        else
+        {
+            Message::SendFail() << "Warning: variable STEP_DIR not set";
+        }
+    }
+
+    Viewer aViewer;
+    if (!aModelPath.IsEmpty())
+    {
+        TCollection_AsciiString aNameLower = aModelPath;
+        aNameLower.LowerCase();
+        if (aNameLower.EndsWith (".xbf"))
+        {
+            aViewer.OpenXBF (aModelPath);
+        }
+        else if (aNameLower.EndsWith (".stp") || aNameLower.EndsWith (".step"))
+        {
+            aViewer.OpenSTEP (aModelPath);
+        }
+
+        aViewer.DumpXCafDocumentTree();
+        aViewer.DisplayXCafDocument (true);
+    }
+
+    Handle(Xw_Window) aWindow = Handle(Xw_Window)::DownCast (aViewer.View()->Window());
+    Handle(Aspect_DisplayConnection) aDispConn = aViewer.View()->Viewer()->Driver()->GetDisplayConnection();
+    Display* anXDisplay = (Display* )aDispConn->GetDisplayAspect();
+    for (;;)
+    {
+        XEvent anXEvent;
+        XNextEvent (anXDisplay, &anXEvent);
+        aWindow->ProcessMessage (aViewer, anXEvent);
+        if (anXEvent.type == ClientMessage && (Atom)anXEvent.xclient.data.l[0] == aDispConn->GetAtom(Aspect_XA_DELETE_WINDOW))
+        {
+            return 0;
+        }
+    }
+
     return 0;
 }
