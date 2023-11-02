@@ -45,6 +45,11 @@ int main(int argc, char** argv)
         {
             aViewer.OpenSTEP (aModelPath);
         }
+        else
+        {
+            std::cout << "There is no step in '" << aModelPath << "'\n";
+            return 1;
+        }
 
         aViewer.DumpXCafDocumentTree();
         aViewer.DisplayXCafDocument (true);

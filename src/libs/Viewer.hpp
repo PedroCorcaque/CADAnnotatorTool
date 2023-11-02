@@ -24,6 +24,10 @@
 #include <XCAFPrs.hxx>
 #include <XCAFPrs_Style.hxx>
 #include <XCAFPrs_IndexedDataMapOfShapeStyle.hxx>
+#include <XCAFDoc_DocumentTool.hxx>
+#include <STEPCAFControl_Writer.hxx>
+
+#include <TDF_Attribute.hxx>
 
 // Display imports
 #include <Aspect_DisplayConnection.hxx>

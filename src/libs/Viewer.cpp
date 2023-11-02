@@ -42,7 +42,7 @@ const Handle(V3d_View)& Viewer::View() const
 
 bool Viewer::SaveXBF(const TCollection_AsciiString& theFilePath)
 {
-    if (myXdeDoc.IsNull()) {return false;}
+    if (myXdeDoc.IsNull()) { return false; }
     const PCDM_StoreStatus aStatus = myXdeApp->SaveAs(myXdeDoc, TCollection_ExtendedString (theFilePath));
     if (aStatus != PCDM_SS_OK)
     {
@@ -209,14 +209,37 @@ void Viewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theCtx, co
         
         {
             Handle(TCollection_HAsciiString) anId = Handle(TCollection_HAsciiString)::DownCast (anXCafPrs->GetOwner());
+            std::cout << "\n*****************************" << std::endl;
             std::cout << "Selected Id: '" << (!anId.IsNull() ? anId->String() : "") << "'\n";
         }
         
         {
             Handle(TDataStd_Name) aNodeName;
+            Handle(TDataStd_Name) aNewNodeName;
             if (anXCafPrs->GetLabel().FindAttribute (TDataStd_Name::GetID(), aNodeName))
             {
-                std::cout << "      Name: '" << aNodeName->Get() << "'\n";
+                std::cout << "      Old Name: '" << aNodeName->Get() << "'\n";
+
+                anXCafPrs->GetLabel().ForgetAllAttributes();
+
+                TCollection_ExtendedString newName;
+                std::string newNameStr;
+                
+                std::cout << "Type the new name: ";
+                std::cin >> newNameStr;
+                newName = newNameStr.c_str();
+
+                TDF_Label theLabel = anXCafPrs->GetLabel();
+                
+                Handle(TDataStd_Name) theNewName = new TDataStd_Name();
+                theNewName->Set(newName);
+
+                Handle_TDF_Attribute aAttr = theNewName;
+                theLabel.AddAttribute(aAttr);
+                anXCafPrs->SetLabel(theLabel);
+
+                anXCafPrs->GetLabel().FindAttribute (TDataStd_Name::GetID(), aNewNodeName);
+                std::cout << "      New Name: '" << aNewNodeName->Get() << "'\n";
             }
         }
 
