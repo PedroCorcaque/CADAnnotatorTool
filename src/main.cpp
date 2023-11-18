@@ -53,12 +53,18 @@ int main(int argc, char** argv)
 
         aViewer.DumpXCafDocumentTree();
         aViewer.DisplayXCafDocument (true);
+
+        // Iterate button
+        const char* buttonIterate = "Iterate by entity";
+        aViewer.DrawNewButton(10, 10, 120, 30, buttonIterate);
+
+        // View all button
+        const char* buttonViewAll = "View all entities";
+        aViewer.DrawNewButton(140, 10, 120, 30, buttonViewAll);
     }
 
-    // Handle(Xw_Window) aWindow = Handle(Xw_Window)::DownCast (aViewer.View()->Window());
     Handle(Xw_Window) aWindow = aViewer.GetWindow();
     Handle(Aspect_DisplayConnection) aDispConn = aViewer.View()->Viewer()->Driver()->GetDisplayConnection();
-    // Display* anXDisplay = (Display* )aDispConn->GetDisplayAspect();
     Display* anXDisplay = aViewer.GetDisplay();
     for (;;)
     {
@@ -70,8 +76,20 @@ int main(int argc, char** argv)
             return 0;
         }
 
-        const char* buttonText = "Click here!";
-        aViewer.DrawNewButton(50, 50, 100, 40, 80, 75, buttonText);
+        // Handle button click events
+        if (anXEvent.type == ButtonPress) {
+            int mouseX = anXEvent.xbutton.x;
+            int mouseY = anXEvent.xbutton.y;
+            aViewer.HandleButtonClick(mouseX, mouseY);
+        }
+
+        // // Iterate button
+        // const char* buttonIterate = "Iterate by entity";
+        // aViewer.DrawNewButton(10, 10, 120, 40, buttonIterate);
+
+        // // View all button
+        // const char* buttonViewAll = "View all entities";
+        // aViewer.DrawNewButton(140, 10, 120, 40, buttonViewAll);
     }
 
     return 0;

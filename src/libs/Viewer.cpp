@@ -30,6 +30,20 @@ Viewer::Viewer()
 
     aGC = XCreateGC(anXDisplay, (Drawable)aWindow->NativeHandle(), 0, nullptr);
 
+    myContext->Activate(4, true); // faces
+    myContext->Activate(2, true); // edges
+
+    const Handle(Prs3d_Drawer)& contextDrawer = myContext->DefaultDrawer();
+    if (!contextDrawer.IsNull()) {
+        const Handle(Prs3d_ShadingAspect)&        SA = contextDrawer->ShadingAspect();
+        const Handle(Graphic3d_AspectFillArea3d)& FA = SA->Aspect();
+        contextDrawer->SetFaceBoundaryDraw(true); // Draw edges.
+        FA->SetEdgeOff();
+
+        // Fix for inifinite lines has been reduced to 1000 from its default value 500000.
+        contextDrawer->SetMaximalParameterValue(1000);
+    }
+
     aWindow->Map();
     myView->Redraw();
 }
@@ -223,7 +237,6 @@ void Viewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theCtx, co
         
         {
             Handle(TCollection_HAsciiString) anId = Handle(TCollection_HAsciiString)::DownCast (anXCafPrs->GetOwner());
-            std::cout << "\n*****************************" << std::endl;
             std::cout << "Selected Id: '" << (!anId.IsNull() ? anId->String() : "") << "'\n";
         }
         
@@ -233,27 +246,6 @@ void Viewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theCtx, co
             if (anXCafPrs->GetLabel().FindAttribute (TDataStd_Name::GetID(), aNodeName))
             {
                 std::cout << "      Name: '" << aNodeName->Get() << "'\n";
-
-                // anXCafPrs->GetLabel().ForgetAllAttributes();
-
-                // TCollection_ExtendedString newName;
-                // std::string newNameStr;
-                
-                // std::cout << "Type the new name: ";
-                // std::cin >> newNameStr;
-                // newName = newNameStr.c_str();
-
-                // TDF_Label theLabel = anXCafPrs->GetLabel();
-                
-                // Handle(TDataStd_Name) theNewName = new TDataStd_Name();
-                // theNewName->Set(newName);
-
-                // Handle_TDF_Attribute aAttr = theNewName;
-                // theLabel.AddAttribute(aAttr);
-                // anXCafPrs->SetLabel(theLabel);
-
-                // anXCafPrs->GetLabel().FindAttribute (TDataStd_Name::GetID(), aNewNodeName);
-                // std::cout << "      New Name: '" << aNewNodeName->Get() << "'\n";
             }
         }
 
@@ -303,10 +295,28 @@ void Viewer::ProcessInput()
     }
 }
 
-void Viewer::DrawNewButton(int posX, int posY, unsigned int width, unsigned int height,
-                           int posXStr, int posYStr, const char* buttonText)
-{
-    XDrawRectangle(anXDisplay, (Drawable)aWindow->NativeHandle(), aGC, posX, posY, width, height);
-    XDrawString(anXDisplay, (Drawable)aWindow->NativeHandle(), aGC, posXStr, posYStr, buttonText, strlen(buttonText));
+void Viewer::DrawButtons() {
+    for (const auto& button : buttons) {
+        button.Draw(anXDisplay, (Window)aWindow->NativeHandle(), aGC);
+    }
     XMapWindow(anXDisplay, (Window)aWindow->NativeHandle());
+}
+
+void Viewer::DrawNewButton(int posX, int posY, unsigned int width, unsigned int height, const char* buttonText) {
+    // XDrawRectangle(anXDisplay, (Drawable)aWindow->NativeHandle(), aGC, posX, posY, width, height);
+    // XDrawString(anXDisplay, (Drawable)aWindow->NativeHandle(), aGC, posXStr, posYStr, buttonText, strlen(buttonText));
+    // XMapWindow(anXDisplay, (Window)aWindow->NativeHandle());
+
+    buttons.emplace_back(posX, posY, width, height, buttonText);
+    DrawButtons();
+}
+
+void Viewer::HandleButtonClick(int mouseX, int mouseY) {
+    for (const auto& button : buttons) {
+        if (button.IsClicked(mouseX, mouseY)) {
+            // Handle button click here
+            std::cout << "Button clicked: " << button.GetLabel() << std::endl;
+            // Perform action associated with the button
+        }
+    }
 }

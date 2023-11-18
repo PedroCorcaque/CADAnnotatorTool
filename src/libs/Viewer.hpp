@@ -42,6 +42,9 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+// Button
+#include "Button.hpp"
+
 class Viewer : public AIS_ViewController
 {
     private:
@@ -62,6 +65,8 @@ class Viewer : public AIS_ViewController
         Display* anXDisplay;
         GC aGC;
 
+        std::vector<Button> buttons;
+
     public:
         Viewer();
 
@@ -76,6 +81,9 @@ class Viewer : public AIS_ViewController
         bool OpenSTEP(const TCollection_AsciiString& theFilePath);
         void DumpXCafDocumentTree();
         void DisplayXCafDocument(bool theToExplode);
-        void DrawNewButton(int posX, int posY, unsigned int width, unsigned int height,
-                           int posXStr, int posYStr, const char* buttonText);
+        void DrawNewButton(int posX, int posY, unsigned int width, unsigned int height, const char* buttonText);
+
+        void DrawButtons();
+        void HandleButtonClick(int mouseX, int mouseY);
+
 };
