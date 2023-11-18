@@ -55,9 +55,11 @@ int main(int argc, char** argv)
         aViewer.DisplayXCafDocument (true);
     }
 
-    Handle(Xw_Window) aWindow = Handle(Xw_Window)::DownCast (aViewer.View()->Window());
+    // Handle(Xw_Window) aWindow = Handle(Xw_Window)::DownCast (aViewer.View()->Window());
+    Handle(Xw_Window) aWindow = aViewer.GetWindow();
     Handle(Aspect_DisplayConnection) aDispConn = aViewer.View()->Viewer()->Driver()->GetDisplayConnection();
-    Display* anXDisplay = (Display* )aDispConn->GetDisplayAspect();
+    // Display* anXDisplay = (Display* )aDispConn->GetDisplayAspect();
+    Display* anXDisplay = aViewer.GetDisplay();
     for (;;)
     {
         XEvent anXEvent;
@@ -67,6 +69,9 @@ int main(int argc, char** argv)
         {
             return 0;
         }
+
+        const char* buttonText = "Click here!";
+        aViewer.DrawNewButton(50, 50, 100, 40, 80, 75, buttonText);
     }
 
     return 0;

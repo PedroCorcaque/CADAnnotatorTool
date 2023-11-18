@@ -40,6 +40,7 @@
 // Window imports
 #include <Xw_Window.hxx>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
 class Viewer : public AIS_ViewController
 {
@@ -57,6 +58,9 @@ class Viewer : public AIS_ViewController
         Handle(V3d_View) myView;
         Handle(TDocStd_Application) myXdeApp;
         Handle(TDocStd_Document) myXdeDoc;
+        Handle(Xw_Window) aWindow;
+        Display* anXDisplay;
+        GC aGC;
 
     public:
         Viewer();
@@ -64,9 +68,14 @@ class Viewer : public AIS_ViewController
         const Handle(AIS_InteractiveContext)& Context() const;
         const Handle(V3d_View)& View() const;
 
+        const Handle(Xw_Window)& GetWindow() const;
+        Display* GetDisplay() const;
+
         bool SaveXBF(const TCollection_AsciiString& theFilePath);
         bool OpenXBF(const TCollection_AsciiString& theFilePath);
         bool OpenSTEP(const TCollection_AsciiString& theFilePath);
         void DumpXCafDocumentTree();
         void DisplayXCafDocument(bool theToExplode);
+        void DrawNewButton(int posX, int posY, unsigned int width, unsigned int height,
+                           int posXStr, int posYStr, const char* buttonText);
 };

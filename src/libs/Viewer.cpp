@@ -11,9 +11,11 @@ Viewer::Viewer()
 
     myView = new V3d_View(aViewer);
 
-    Handle(Xw_Window) aWindow = new Xw_Window (aDisplay, "CAD Annotator", 100, 100, 512, 512);
-    Display* anXDisplay = (Display* )aDisplay->GetDisplayAspect();
-    XSelectInput (anXDisplay, (Window )aWindow->NativeHandle(),
+    // Handle(Xw_Window) aWindow = new Xw_Window (aDisplay, "CAD Annotator", 100, 100, 512, 512);
+    // Display* anXDisplay = (Display* )aDisplay->GetDisplayAspect();
+    aWindow = new Xw_Window (aDisplay, "CAD Annotator", 100, 100, 512, 512);
+    anXDisplay = (Display* )aDisplay->GetDisplayAspect();
+    XSelectInput (anXDisplay, (Window)aWindow->NativeHandle(),
                     ExposureMask | KeyPressMask | KeyReleaseMask | FocusChangeMask | StructureNotifyMask
                     | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | Button1MotionMask | Button2MotionMask | Button3MotionMask);
     Atom aDelWinAtom = aDisplay->GetAtom (Aspect_XA_DELETE_WINDOW);
@@ -26,8 +28,20 @@ Viewer::Viewer()
 
     myContext = new AIS_InteractiveContext (aViewer);
 
+    aGC = XCreateGC(anXDisplay, (Drawable)aWindow->NativeHandle(), 0, nullptr);
+
     aWindow->Map();
     myView->Redraw();
+}
+
+const Handle(Xw_Window)& Viewer::GetWindow() const
+{
+    return aWindow;
+}
+
+Display* Viewer::GetDisplay() const
+{
+    return anXDisplay;
 }
 
 const Handle(AIS_InteractiveContext)& Viewer::Context() const
@@ -218,28 +232,28 @@ void Viewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theCtx, co
             Handle(TDataStd_Name) aNewNodeName;
             if (anXCafPrs->GetLabel().FindAttribute (TDataStd_Name::GetID(), aNodeName))
             {
-                std::cout << "      Old Name: '" << aNodeName->Get() << "'\n";
+                std::cout << "      Name: '" << aNodeName->Get() << "'\n";
 
-                anXCafPrs->GetLabel().ForgetAllAttributes();
+                // anXCafPrs->GetLabel().ForgetAllAttributes();
 
-                TCollection_ExtendedString newName;
-                std::string newNameStr;
+                // TCollection_ExtendedString newName;
+                // std::string newNameStr;
                 
-                std::cout << "Type the new name: ";
-                std::cin >> newNameStr;
-                newName = newNameStr.c_str();
+                // std::cout << "Type the new name: ";
+                // std::cin >> newNameStr;
+                // newName = newNameStr.c_str();
 
-                TDF_Label theLabel = anXCafPrs->GetLabel();
+                // TDF_Label theLabel = anXCafPrs->GetLabel();
                 
-                Handle(TDataStd_Name) theNewName = new TDataStd_Name();
-                theNewName->Set(newName);
+                // Handle(TDataStd_Name) theNewName = new TDataStd_Name();
+                // theNewName->Set(newName);
 
-                Handle_TDF_Attribute aAttr = theNewName;
-                theLabel.AddAttribute(aAttr);
-                anXCafPrs->SetLabel(theLabel);
+                // Handle_TDF_Attribute aAttr = theNewName;
+                // theLabel.AddAttribute(aAttr);
+                // anXCafPrs->SetLabel(theLabel);
 
-                anXCafPrs->GetLabel().FindAttribute (TDataStd_Name::GetID(), aNewNodeName);
-                std::cout << "      New Name: '" << aNewNodeName->Get() << "'\n";
+                // anXCafPrs->GetLabel().FindAttribute (TDataStd_Name::GetID(), aNewNodeName);
+                // std::cout << "      New Name: '" << aNewNodeName->Get() << "'\n";
             }
         }
 
@@ -289,3 +303,10 @@ void Viewer::ProcessInput()
     }
 }
 
+void Viewer::DrawNewButton(int posX, int posY, unsigned int width, unsigned int height,
+                           int posXStr, int posYStr, const char* buttonText)
+{
+    XDrawRectangle(anXDisplay, (Drawable)aWindow->NativeHandle(), aGC, posX, posY, width, height);
+    XDrawString(anXDisplay, (Drawable)aWindow->NativeHandle(), aGC, posXStr, posYStr, buttonText, strlen(buttonText));
+    XMapWindow(anXDisplay, (Window)aWindow->NativeHandle());
+}
