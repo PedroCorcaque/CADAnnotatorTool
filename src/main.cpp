@@ -85,11 +85,11 @@ int main(int argc, char** argv)
 
         // // Iterate button
         // const char* buttonIterate = "Iterate by entity";
-        // aViewer.DrawNewButton(10, 10, 120, 40, buttonIterate);
+        // aViewer.DrawNewButton(10, 10, 120, 30, buttonIterate);
 
         // // View all button
         // const char* buttonViewAll = "View all entities";
-        // aViewer.DrawNewButton(140, 10, 120, 40, buttonViewAll);
+        // aViewer.DrawNewButton(140, 10, 120, 30, buttonViewAll);
     }
 
     return 0;

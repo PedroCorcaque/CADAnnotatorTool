@@ -30,20 +30,6 @@ Viewer::Viewer()
 
     aGC = XCreateGC(anXDisplay, (Drawable)aWindow->NativeHandle(), 0, nullptr);
 
-    myContext->Activate(4, true); // faces
-    myContext->Activate(2, true); // edges
-
-    const Handle(Prs3d_Drawer)& contextDrawer = myContext->DefaultDrawer();
-    if (!contextDrawer.IsNull()) {
-        const Handle(Prs3d_ShadingAspect)&        SA = contextDrawer->ShadingAspect();
-        const Handle(Graphic3d_AspectFillArea3d)& FA = SA->Aspect();
-        contextDrawer->SetFaceBoundaryDraw(true); // Draw edges.
-        FA->SetEdgeOff();
-
-        // Fix for inifinite lines has been reduced to 1000 from its default value 500000.
-        contextDrawer->SetMaximalParameterValue(1000);
-    }
-
     aWindow->Map();
     myView->Redraw();
 }
@@ -272,6 +258,7 @@ void Viewer::ProcessExpose()
 {
     if (!myView.IsNull())
     {
+        DrawButtons();
         FlushViewEvents (myContext, myView, true);
     }
 }
@@ -303,10 +290,6 @@ void Viewer::DrawButtons() {
 }
 
 void Viewer::DrawNewButton(int posX, int posY, unsigned int width, unsigned int height, const char* buttonText) {
-    // XDrawRectangle(anXDisplay, (Drawable)aWindow->NativeHandle(), aGC, posX, posY, width, height);
-    // XDrawString(anXDisplay, (Drawable)aWindow->NativeHandle(), aGC, posXStr, posYStr, buttonText, strlen(buttonText));
-    // XMapWindow(anXDisplay, (Window)aWindow->NativeHandle());
-
     buttons.emplace_back(posX, posY, width, height, buttonText);
     DrawButtons();
 }
@@ -314,9 +297,15 @@ void Viewer::DrawNewButton(int posX, int posY, unsigned int width, unsigned int 
 void Viewer::HandleButtonClick(int mouseX, int mouseY) {
     for (const auto& button : buttons) {
         if (button.IsClicked(mouseX, mouseY)) {
-            // Handle button click here
-            std::cout << "Button clicked: " << button.GetLabel() << std::endl;
-            // Perform action associated with the button
+            if (button.GetLabel() == "View all entities") {
+                std::cout << "Botao view all" << std::endl;
+                myContext->EraseAll(true);
+                DisplayXCafDocument(false);
+            } else if (button.GetLabel() == "Iterate by entity") {
+                std::cout << "Botao by entity" << std::endl;
+                myContext->EraseAll(true);
+                DisplayXCafDocument(true);
+            }
         }
     }
 }
