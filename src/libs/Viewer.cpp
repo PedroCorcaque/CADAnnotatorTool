@@ -153,6 +153,38 @@ void Viewer::DisplayXCafDocument(bool theToExplode)
     AIS_ViewController::ProcessExpose();
 }
 
+void Viewer::DisplayXCafDocumentByPart(bool theToExplode, size_t startIndex)
+{
+    if (myXdeDoc.IsNull()) { return; }
+    myContext->EraseAll(true);
+    XCAFPrs_DocumentExplorer aDocExp (myXdeDoc, XCAFPrs_DocumentExplorerFlags_None);
+    // for (XCAFPrs_DocumentExplorer aDocExp (myXdeDoc, XCAFPrs_DocumentExplorerFlags_None); aDocExp.More(); aDocExp.Next())
+    // {
+        for (size_t i = 0; aDocExp.More() && i < startIndex; aDocExp.Next(), ++i) {}
+        if (aDocExp.More()) {
+            const XCAFPrs_DocumentNode& aNode = aDocExp.Current();
+            // if (theToExplode)
+            // {
+            //     if (aNode.IsAssembly) { continue; }
+            // }
+            // else
+            // {
+            //     if (aDocExp.CurrentDepth() != 0) { continue; }
+            // }
+
+            Handle(XCAFPrs_AISObject) aPrs = new XCAFPrs_AISObject (aNode.RefLabel);
+            if (!aNode.Location.IsIdentity()) { aPrs->SetLocalTransformation (aNode.Location); }
+
+            aPrs->SetOwner (new TCollection_HAsciiString (aNode.Id));
+
+            myContext->Display (aPrs, AIS_Shaded, 0, false);
+
+            myView->FitAll(0.01, false);
+            AIS_ViewController::ProcessExpose();
+        }
+    // }
+}
+
 bool Viewer::createXCafApp()
 {
     if (!myXdeApp.IsNull()) { return true; }
@@ -303,8 +335,19 @@ void Viewer::HandleButtonClick(int mouseX, int mouseY) {
                 DisplayXCafDocument(false);
             } else if (button.GetLabel() == "Iterate by entity") {
                 std::cout << "Botao by entity" << std::endl;
+
                 myContext->EraseAll(true);
-                DisplayXCafDocument(true);
+
+                const char* nextButtonText = "Next";
+                DrawNewButton(512-30, (512/2)+15, 20, 30, ">");
+
+                currentEntityIndex = 0;
+                DisplayXCafDocumentByPart(true, currentEntityIndex);
+            } else if (button.GetLabel() == ">") {
+                std::cout << "Botao next" << std::endl;
+
+                currentEntityIndex++;
+                DisplayXCafDocumentByPart(true, currentEntityIndex);
             }
         }
     }

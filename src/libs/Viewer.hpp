@@ -65,6 +65,8 @@ class Viewer : public AIS_ViewController
         Display* anXDisplay;
         GC aGC;
 
+        size_t currentEntityIndex = 0;
+
         std::vector<Button> buttons;
 
     public:
@@ -81,6 +83,7 @@ class Viewer : public AIS_ViewController
         bool OpenSTEP(const TCollection_AsciiString& theFilePath);
         void DumpXCafDocumentTree();
         void DisplayXCafDocument(bool theToExplode);
+        void DisplayXCafDocumentByPart(bool theToExplode, size_t startIndex);
         void DrawNewButton(int posX, int posY, unsigned int width, unsigned int height, const char* buttonText);
 
         void DrawButtons();
