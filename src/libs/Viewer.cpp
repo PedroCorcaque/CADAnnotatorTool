@@ -158,31 +158,21 @@ void Viewer::DisplayXCafDocumentByPart(bool theToExplode, size_t startIndex)
     if (myXdeDoc.IsNull()) { return; }
     myContext->EraseAll(true);
     XCAFPrs_DocumentExplorer aDocExp (myXdeDoc, XCAFPrs_DocumentExplorerFlags_None);
-    // for (XCAFPrs_DocumentExplorer aDocExp (myXdeDoc, XCAFPrs_DocumentExplorerFlags_None); aDocExp.More(); aDocExp.Next())
-    // {
-        for (size_t i = 0; aDocExp.More() && i < startIndex; aDocExp.Next(), ++i) {}
-        if (aDocExp.More()) {
-            const XCAFPrs_DocumentNode& aNode = aDocExp.Current();
-            // if (theToExplode)
-            // {
-            //     if (aNode.IsAssembly) { continue; }
-            // }
-            // else
-            // {
-            //     if (aDocExp.CurrentDepth() != 0) { continue; }
-            // }
+    for (size_t i = 0; aDocExp.More() && i < startIndex; aDocExp.Next(), ++i) {}
+    if (aDocExp.More()) {
+        const XCAFPrs_DocumentNode& aNode = aDocExp.Current();
+        if (aNode.IsAssembly) { return; }
 
-            Handle(XCAFPrs_AISObject) aPrs = new XCAFPrs_AISObject (aNode.RefLabel);
-            if (!aNode.Location.IsIdentity()) { aPrs->SetLocalTransformation (aNode.Location); }
+        Handle(XCAFPrs_AISObject) aPrs = new XCAFPrs_AISObject (aNode.RefLabel);
+        if (!aNode.Location.IsIdentity()) { aPrs->SetLocalTransformation (aNode.Location); }
 
-            aPrs->SetOwner (new TCollection_HAsciiString (aNode.Id));
+        aPrs->SetOwner (new TCollection_HAsciiString (aNode.Id));
 
-            myContext->Display (aPrs, AIS_Shaded, 0, false);
+        myContext->Display (aPrs, AIS_Shaded, 0, false);
 
-            myView->FitAll(0.01, false);
-            AIS_ViewController::ProcessExpose();
-        }
-    // }
+        myView->FitAll(0.01, false);
+        AIS_ViewController::ProcessExpose();
+    }
 }
 
 bool Viewer::createXCafApp()
