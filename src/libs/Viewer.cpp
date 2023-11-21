@@ -332,14 +332,15 @@ void Viewer::HandleButtonClick(int mouseX, int mouseY) {
             if (button.GetLabel() == "View all entities") {
                 std::cout << "Botao view all" << std::endl;
                 myContext->EraseAll(true);
-                DisplayXCafDocument(false);
+                DisplayXCafDocument(true);
             } else if (button.GetLabel() == "Iterate by entity") {
                 std::cout << "Botao by entity" << std::endl;
 
                 myContext->EraseAll(true);
 
-                const char* nextButtonText = "Next";
                 DrawNewButton(512-30, (512/2)+15, 20, 30, ">");
+
+                DrawNewButton(10, (512/2)+15, 20, 30, "<");
 
                 currentEntityIndex = 0;
                 DisplayXCafDocumentByPart(true, currentEntityIndex);
@@ -347,6 +348,13 @@ void Viewer::HandleButtonClick(int mouseX, int mouseY) {
                 std::cout << "Botao next" << std::endl;
 
                 currentEntityIndex++;
+                DisplayXCafDocumentByPart(true, currentEntityIndex);
+            } else if (button.GetLabel() == "<") {
+                std::cout << "Botao prev" << std::endl;
+
+                if (currentEntityIndex != 0) {
+                    currentEntityIndex--;
+                }
                 DisplayXCafDocumentByPart(true, currentEntityIndex);
             }
         }
