@@ -83,7 +83,7 @@ class Viewer : public AIS_ViewController
         bool OpenSTEP(const TCollection_AsciiString& theFilePath);
         void DumpXCafDocumentTree();
         void DisplayXCafDocument(bool theToExplode);
-        void DisplayXCafDocumentByPart(bool theToExplode, size_t startIndex);
+        void DisplayXCafDocumentByPart(bool theToExplode, size_t startIndex, int howDeep);
         void DrawNewButton(int posX, int posY, unsigned int width, unsigned int height, const char* buttonText);
 
         void DrawButtons();

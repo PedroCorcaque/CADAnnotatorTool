@@ -153,15 +153,18 @@ void Viewer::DisplayXCafDocument(bool theToExplode)
     AIS_ViewController::ProcessExpose();
 }
 
-void Viewer::DisplayXCafDocumentByPart(bool theToExplode, size_t startIndex)
+void Viewer::DisplayXCafDocumentByPart(bool theToExplode, size_t startIndex, int howDeep)
 {
     if (myXdeDoc.IsNull()) { return; }
     myContext->EraseAll(true);
     XCAFPrs_DocumentExplorer aDocExp (myXdeDoc, XCAFPrs_DocumentExplorerFlags_None);
     for (size_t i = 0; aDocExp.More() && i < startIndex; aDocExp.Next(), ++i) {}
+
     if (aDocExp.More()) {
         const XCAFPrs_DocumentNode& aNode = aDocExp.Current();
-        if (aNode.IsAssembly) { return; }
+        if (aNode.IsAssembly) { 
+            return;
+        }
 
         Handle(XCAFPrs_AISObject) aPrs = new XCAFPrs_AISObject (aNode.RefLabel);
         if (!aNode.Location.IsIdentity()) { aPrs->SetLocalTransformation (aNode.Location); }
@@ -172,6 +175,23 @@ void Viewer::DisplayXCafDocumentByPart(bool theToExplode, size_t startIndex)
 
         myView->FitAll(0.01, false);
         AIS_ViewController::ProcessExpose();
+
+        Handle(TCollection_HAsciiString) anId = Handle(TCollection_HAsciiString)::DownCast (aPrs->GetOwner());
+        std::cout << "The Id -> " << (!anId.IsNull() ? anId->String() : "Don't have and id") << std::endl;
+
+        Handle(TDataStd_Name) aNodeName;
+        if (aPrs->GetLabel().FindAttribute (TDataStd_Name::GetID(), aNodeName)) {
+            std::cout << "The current class -> " << aNodeName->Get() << std::endl;
+        } else {
+            std::cout << "This entity don't has a class!" << std::endl;
+        }
+
+        // std::cout << "aqui0 -> " << getXCafNodePathNames(aDocExp, true, 0) << std::endl;
+        // std::cout << "aqui1 -> " << getXCafNodePathNames(aDocExp, true, 1) << std::endl;
+        // std::cout << "aqui2 -> " << getXCafNodePathNames(aDocExp, true, 2) << std::endl;
+        // std::cout << "aqui3 -> " << getXCafNodePathNames(aDocExp, true, 3) << std::endl;
+    } else {
+        std::cout << "There is no more entities" << std::endl;
     }
 }
 
@@ -242,36 +262,26 @@ void Viewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theCtx, co
     {
         Handle(XCAFPrs_AISObject) anXCafPrs = Handle(XCAFPrs_AISObject)::DownCast (aSelIter->Selectable());
         if (anXCafPrs.IsNull()) { continue; }
-        
-        {
-            Handle(TCollection_HAsciiString) anId = Handle(TCollection_HAsciiString)::DownCast (anXCafPrs->GetOwner());
-            std::cout << "Selected Id: '" << (!anId.IsNull() ? anId->String() : "") << "'\n";
-        }
-        
-        {
-            Handle(TDataStd_Name) aNodeName;
-            Handle(TDataStd_Name) aNewNodeName;
-            if (anXCafPrs->GetLabel().FindAttribute (TDataStd_Name::GetID(), aNodeName))
-            {
-                std::cout << "      Name: '" << aNodeName->Get() << "'\n";
-            }
-        }
 
-        {
-            TopLoc_Location aLoc;
-            XCAFPrs_IndexedDataMapOfShapeStyle aStyles;
-            XCAFPrs::CollectStyleSettings (anXCafPrs->GetLabel(), aLoc, aStyles);
-            NCollection_Map<Quantity_ColorRGBA, Quantity_ColorRGBAHasher> aColorFilter;
-            std::cout << "      Colors:";
-            for (XCAFPrs_IndexedDataMapOfShapeStyle::Iterator aStyleIter (aStyles); aStyleIter.More(); aStyleIter.Next())
-            {
-                const XCAFPrs_Style& aStyle = aStyleIter.Value();
-                if (aStyle.IsSetColorSurf() && aColorFilter.Add (aStyle.GetColorSurfRGBA()))
-                {
-                    std::cout << " " << Quantity_ColorRGBA::ColorToHex (aStyle.GetColorSurfRGBA());
-                }
-            }
-            std::cout << "\n";
+        std::cout << "Type the new class for this entity: " << std::endl;
+        std::string aNewClass;
+        std::cin >> aNewClass;
+
+        TCollection_ExtendedString theNewClass;
+        theNewClass = aNewClass.c_str();
+
+        Handle(TDataStd_Name) theNewClass_Name = new TDataStd_Name();
+        theNewClass_Name->Set(aNewClass.c_str());
+
+        Handle_TDF_Attribute theNewClass_Attr = theNewClass_Name;
+
+        if (anXCafPrs->GetLabel().ForgetAttribute(TDataStd_Name::GetID())) {
+            std::cout << "The old class was removed." << std::endl;
+        }
+        try {
+            anXCafPrs->GetLabel().AddAttribute(theNewClass_Attr, true);
+        } catch (...) {
+            std::cerr << "An error occured on set a new class" << std::endl;
         }
     }
 }
@@ -333,19 +343,19 @@ void Viewer::HandleButtonClick(int mouseX, int mouseY) {
                 DrawNewButton(10, (512/2)+15, 20, 30, "<");
 
                 currentEntityIndex = 0;
-                DisplayXCafDocumentByPart(true, currentEntityIndex);
+                DisplayXCafDocumentByPart(true, currentEntityIndex, 1);
             } else if (button.GetLabel() == ">") {
                 std::cout << "Botao next" << std::endl;
 
                 currentEntityIndex++;
-                DisplayXCafDocumentByPart(true, currentEntityIndex);
+                DisplayXCafDocumentByPart(true, currentEntityIndex, 1);
             } else if (button.GetLabel() == "<") {
                 std::cout << "Botao prev" << std::endl;
 
                 if (currentEntityIndex != 0) {
                     currentEntityIndex--;
                 }
-                DisplayXCafDocumentByPart(true, currentEntityIndex);
+                DisplayXCafDocumentByPart(true, currentEntityIndex, 1);
             }
         }
     }
