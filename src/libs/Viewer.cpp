@@ -1,7 +1,10 @@
 #include "Viewer.hpp"
 
-Viewer::Viewer()
+Viewer::Viewer(int windowWidth, int windowHeight)
 {
+    width = windowWidth;
+    height = windowHeight;
+
     Handle(Aspect_DisplayConnection) aDisplay = new Aspect_DisplayConnection();
     Handle(Graphic3d_GraphicDriver) aDriver = new OpenGl_GraphicDriver (aDisplay);
 
@@ -13,7 +16,7 @@ Viewer::Viewer()
 
     // Handle(Xw_Window) aWindow = new Xw_Window (aDisplay, "CAD Annotator", 100, 100, 512, 512);
     // Display* anXDisplay = (Display* )aDisplay->GetDisplayAspect();
-    aWindow = new Xw_Window (aDisplay, "CAD Annotator", 100, 100, 512, 512);
+    aWindow = new Xw_Window (aDisplay, "CAD Annotator", 100, 100, width, height);
     anXDisplay = (Display* )aDisplay->GetDisplayAspect();
     XSelectInput (anXDisplay, (Window)aWindow->NativeHandle(),
                     ExposureMask | KeyPressMask | KeyReleaseMask | FocusChangeMask | StructureNotifyMask
@@ -338,9 +341,9 @@ void Viewer::HandleButtonClick(int mouseX, int mouseY) {
 
                 myContext->EraseAll(true);
 
-                DrawNewButton(512-30, (512/2)+15, 20, 30, ">");
+                DrawNewButton(width-30, (height/2)+15, 20, 30, ">");
 
-                DrawNewButton(10, (512/2)+15, 20, 30, "<");
+                DrawNewButton(10, (height/2)+15, 20, 30, "<");
 
                 currentEntityIndex = 0;
                 DisplayXCafDocumentByPart(true, currentEntityIndex, 1);

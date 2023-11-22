@@ -57,6 +57,8 @@ class Viewer : public AIS_ViewController
         virtual void ProcessConfigure(bool theIsResized) override; 
         virtual void ProcessInput() override;
 
+        int height = 512, width = 512;
+
         Handle(AIS_InteractiveContext) myContext;
         Handle(V3d_View) myView;
         Handle(TDocStd_Application) myXdeApp;
@@ -70,7 +72,7 @@ class Viewer : public AIS_ViewController
         std::vector<Button> buttons;
 
     public:
-        Viewer();
+        Viewer(int windowWidth, int windowHeight);
 
         const Handle(AIS_InteractiveContext)& Context() const;
         const Handle(V3d_View)& View() const;
@@ -88,5 +90,8 @@ class Viewer : public AIS_ViewController
 
         void DrawButtons();
         void HandleButtonClick(int mouseX, int mouseY);
+
+        int GetHeight() const { return height; }
+        int GetWidth() const { return width; }
 
 };

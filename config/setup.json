@@ -1,0 +1,16 @@
+{
+    "window": {
+        "width": 1920,
+        "height": 1080
+    },
+    "classes": [
+        {
+            "name": "tube",
+            "color": "#110000"
+        },
+        {
+            "name": "wall",
+            "color": "#000011"
+        }
+    ]
+}

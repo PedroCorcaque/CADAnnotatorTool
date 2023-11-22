@@ -1,8 +1,19 @@
 #include <Viewer.hpp>
 #include <Utils.hpp>
+#include <json.hpp>
+#include <algorithm>
+using json = nlohmann::json;
 
 int main(int argc, char** argv) 
 {
+    std::ifstream configFile("../config/setup.json");
+    json configData = json::parse(configFile);
+
+    int windowWidth = configData["window"]["width"];
+    int windowHeight = configData["window"]["height"];
+
+    std::cout << windowWidth << std::endl;
+
     OSD::SetSignal (false);
 
     std::vector<TCollection_AsciiString> anArgs;
@@ -32,7 +43,7 @@ int main(int argc, char** argv)
         }
     }
 
-    Viewer aViewer;
+    Viewer aViewer (windowWidth, windowHeight);
     if (!aModelPath.IsEmpty())
     {
         TCollection_AsciiString aNameLower = aModelPath;
