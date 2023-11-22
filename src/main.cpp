@@ -65,13 +65,9 @@ int main(int argc, char** argv)
         aViewer.DumpXCafDocumentTree();
         aViewer.DisplayXCafDocument (true);
 
-        // Iterate button
-        const char* buttonIterate = "Iterate by entity";
-        aViewer.DrawNewButton(10, 10, 120, 30, buttonIterate);
-
-        // View all button
-        const char* buttonViewAll = "View all entities";
-        aViewer.DrawNewButton(140, 10, 120, 30, buttonViewAll);
+        aViewer.DrawNewButton(10, 10, 120, 30, "Iterate by entity");
+        aViewer.DrawNewButton(140, 10, 120, 30, "View all entities");
+        aViewer.DrawNewButton(270, 10, 120, 30, "Save step model");
     }
 
     Handle(Xw_Window) aWindow = aViewer.GetWindow();

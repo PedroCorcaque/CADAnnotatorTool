@@ -57,6 +57,8 @@ class Viewer : public AIS_ViewController
         virtual void ProcessConfigure(bool theIsResized) override; 
         virtual void ProcessInput() override;
 
+        void SaveDocumentAsStep();
+
         int height = 512, width = 512;
 
         Handle(AIS_InteractiveContext) myContext;

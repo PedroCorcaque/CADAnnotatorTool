@@ -359,7 +359,18 @@ void Viewer::HandleButtonClick(int mouseX, int mouseY) {
                     currentEntityIndex--;
                 }
                 DisplayXCafDocumentByPart(true, currentEntityIndex, 1);
+            } else if (button.GetLabel() == "Save step model") {
+                std::cout << "Botao save model" << std::endl;
+
+                SaveDocumentAsStep();
             }
         }
     }
+}
+
+void Viewer::SaveDocumentAsStep() {
+    STEPCAFControl_Writer stepWriter;
+    stepWriter.Transfer(myXdeDoc);
+
+    stepWriter.Write("output.stp");
 }
