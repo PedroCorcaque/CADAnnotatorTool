@@ -263,7 +263,7 @@ OcctQtViewer::OcctQtViewer (QWidget* theParent)
   #ifndef __APPLE__
     myView->ChangeRenderingParams().NbMsaaSamples = 4; // warning - affects performance
   #endif
-  myView->ChangeRenderingParams().ToShowStats = true;
+  myView->ChangeRenderingParams().ToShowStats = false; // FPS / Rendering what
   myView->ChangeRenderingParams().CollectedStats = (Graphic3d_RenderingParams::PerfCounters )
     (Graphic3d_RenderingParams::PerfCounters_FrameRate
    | Graphic3d_RenderingParams::PerfCounters_Triangles);
@@ -299,6 +299,11 @@ OcctQtViewer::OcctQtViewer (QWidget* theParent)
 #endif*/
 
   setFormat (aGlFormat);
+
+  entityName = new QLabel(this);
+  entityName->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+  entityName->setStyleSheet("QLabel { color : white; }");
+  entityName->setFixedSize(512, 40);
 
 #if defined(_WIN32)
   // never use ANGLE on Windows, since OCCT 3D Viewer does not expect this
@@ -867,6 +872,8 @@ void OcctQtViewer::DisplayXCafDocumentByPart(bool theToExplode, size_t startInde
     Handle(TDataStd_Name) aNodeName;
     if (aPrs->GetLabel().FindAttribute (TDataStd_Name::GetID(), aNodeName)) {
       std::cout << "The current class -> " << aNodeName->Get() << std::endl;
+      
+      entityName->setText(QString() + "Current class: " + QString::fromUtf16(aNodeName->Get().ToExtString()));
     } else {
       std::cout << "This entity don't has a class!" << std::endl;
     }

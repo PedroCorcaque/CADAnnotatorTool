@@ -61,8 +61,9 @@ public:
       theLayoutButton->addWidget (theNextButton, 0, Qt::AlignVCenter | Qt::AlignRight);
       connect (theNextButton, &QPushButton::clicked, [this]()
       {
-        QMessageBox::information (0, "Next button clicked", QString()
-                                  + "You clicked in the next button!");
+        currentIndexEntity++;
+
+        myViewer->DisplayXCafDocumentByPart(true, currentIndexEntity);
       });
     
       QPushButton* thePrevButton = new QPushButton ("Previous", buttonWidget);
@@ -71,8 +72,9 @@ public:
       theLayoutButton->addWidget (thePrevButton, 0, Qt::AlignVCenter | Qt::AlignLeft);
       connect (thePrevButton, &QPushButton::clicked, [this]()
       {
-        QMessageBox::information (0, "Previous button clicked", QString()
-                                  + "You clicked in the prev button!");
+        currentIndexEntity--;
+
+        myViewer->DisplayXCafDocumentByPart(true, currentIndexEntity);
       });
     
       QMenuBar* aMenuBar = new QMenuBar();
@@ -144,6 +146,8 @@ public:
 
             theNextButton->setVisible(false);
             thePrevButton->setVisible(false);
+
+            myViewer->DisplayXCafDocument(true);
           });
         }
         {
@@ -157,6 +161,8 @@ public:
 
             theNextButton->setVisible(true);
             thePrevButton->setVisible(true);
+
+            myViewer->DisplayXCafDocumentByPart(true, currentIndexEntity);
           });
         }
       }
@@ -220,6 +226,8 @@ public:
       myViewer->layout()->addWidget(buttonWidget);
     }
   }
+private:
+  size_t currentIndexEntity = 0;
 };
 
 int main (int theNbArgs, char** theArgVec)

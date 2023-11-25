@@ -24,6 +24,7 @@
 
 #include <Standard_WarningsDisable.hxx>
 #include <QOpenGLWidget>
+#include <QLabel>
 #include <Standard_WarningsRestore.hxx>
 
 #include <AIS_InteractiveContext.hxx>
@@ -35,6 +36,7 @@
 #include <XCAFPrs_DocumentExplorer.hxx>
 #include <TDataStd_Name.hxx>
 #include <TDF_Tool.hxx>
+#include <AIS_TextLabel.hxx>
 
 class AIS_ViewCube;
 
@@ -140,8 +142,11 @@ private:
   Handle(TDocStd_Document)       myXdeDoc;
   Handle(TDocStd_Application)    myXdeApp;
 
+  QLabel* entityName;
+
   QString myGlInfo;
   bool myIsCoreProfile;
+
 };
 
 #endif // _OcctQtViewer_HeaderFile
