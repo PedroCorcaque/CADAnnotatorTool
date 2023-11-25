@@ -41,8 +41,13 @@
 #include <Standard_Version.hxx>
 
 // occt includes
-#include<TDocStd_Document.hxx>
+#include <TDocStd_Document.hxx>
 #include <STEPCAFControl_Writer.hxx>
+
+// System includes
+#include <fstream>
+#include "json.hpp"
+using json = nlohmann::json;
 
 //! Main application window.
 class MyMainWindow : public QMainWindow
@@ -180,6 +185,19 @@ public:
             if (!theFilePath.isEmpty())
             {
               std::cout << "Config file path: " << theFilePath.toStdString().c_str() << std::endl;
+
+              try
+              {
+                std::ifstream configFile (theFilePath.toStdString());
+                json configData;
+                configFile >> configData;
+              }
+              catch (...)
+              {
+                QMessageBox::warning(0, "File load error", QString()
+                                    + "Error loading config file.\n\n"
+                                    + "Check that the file is in the correct format.\n");
+              }
             }
           });
         }
