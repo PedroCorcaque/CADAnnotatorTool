@@ -770,8 +770,13 @@ void OcctQtViewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theC
       }
       try {
           anXCafPrs->GetLabel().AddAttribute(theNewClass_Attr, true);
+
+          ShowCurrentClass(theNewClass);
       } catch (...) {
           std::cerr << "An error occured on set a new class" << std::endl;
+
+          QMessageBox::critical(0, "Error setting new class", QString()
+                                + "An error occured on set a new class.\n");
       }
     }
 }
