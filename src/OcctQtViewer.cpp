@@ -873,11 +873,11 @@ void OcctQtViewer::DisplayXCafDocumentByPart(bool theToExplode, size_t startInde
     if (aPrs->GetLabel().FindAttribute (TDataStd_Name::GetID(), aNodeName)) {
       std::cout << "The current class -> " << aNodeName->Get() << std::endl;
       
-      entityName->setText(QString() + "Current class: " + QString::fromUtf16(aNodeName->Get().ToExtString()));
+      ShowCurrentClass(aNodeName->Get());
     } else {
       std::cout << "This entity don't has a class!" << std::endl;
 
-      entityName->setText(QString() + "Current class: ");
+      ShowCurrentClass();
     }
   } else {
     std::cout << "There is no more entities" << std::endl;
@@ -894,4 +894,14 @@ void OcctQtViewer::ClearContext()
 {
   myContext->EraseAll(true);
   DisplayCube();
+}
+
+void OcctQtViewer::ShowCurrentClass(TCollection_ExtendedString aNodeNameGot) const
+{
+  entityName->setText(QString() + "Current class: " + QString::fromUtf16(aNodeNameGot.ToExtString()));
+}
+
+void OcctQtViewer::ShowCurrentClass() const
+{
+  entityName->setText(QString() + "Current class: ");
 }

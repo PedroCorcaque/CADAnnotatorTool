@@ -92,6 +92,8 @@ private: // My implementations
   virtual void ProcessConfigure(bool theIsResized) override;
   virtual void ProcessInput() override;
   void DisplayCube();
+  void ShowCurrentClass(TCollection_ExtendedString aNodeNameGot) const;
+  void ShowCurrentClass() const;
 
 public: // My implementations
 

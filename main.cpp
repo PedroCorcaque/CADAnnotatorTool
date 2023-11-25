@@ -191,6 +191,8 @@ public:
                 std::ifstream configFile (theFilePath.toStdString());
                 json configData;
                 configFile >> configData;
+
+                configFile.close();
               }
               catch (...)
               {
