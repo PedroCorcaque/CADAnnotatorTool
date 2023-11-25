@@ -50,97 +50,120 @@ public:
   MyMainWindow() : myViewer (nullptr)
   {
     {
-      // menu bar with Quit item
       QMenuBar* aMenuBar = new QMenuBar();
-      QMenu* aMenuWindow = aMenuBar->addMenu ("&File");
-      // {
-      //   QAction* anActionSplit = new QAction(aMenuWindow);
-      //   anActionSplit->setText("Split Views");
-      //   aMenuWindow->addAction(anActionSplit);
-      //   connect(anActionSplit, &QAction::triggered, [this]()
-      //   {
-      //     if (!myViewer->View()->Subviews().IsEmpty())
-      //     {
-      //       // remove subviews
-      //       myViewer->View()->View()->SetSubviewComposer(false);
-      //       NCollection_Sequence<Handle(V3d_View)> aSubviews = myViewer->View()->Subviews();
-      //       for (const Handle(V3d_View)& aSubviewIter : aSubviews)
-      //       {
-      //         aSubviewIter->Remove();
-      //       }
-      //       myViewer->OnSubviewChanged(myViewer->Context(), nullptr, myViewer->View());
-      //     }
-      //     else
-      //     {
-      //       // create two subviews splitting window horizontally
-      //       myViewer->View()->View()->SetSubviewComposer(true);
-
-      //       Handle(V3d_View) aSubView1 = new V3d_View(myViewer->Viewer());
-      //       aSubView1->SetImmediateUpdate(false);
-      //       aSubView1->SetWindow(myViewer->View(), Graphic3d_Vec2d(0.5, 1.0),
-      //                            Aspect_TOTP_LEFT_UPPER, Graphic3d_Vec2d(0.0, 0.0));
-
-      //       Handle(V3d_View) aSubView2 = new V3d_View(myViewer->Viewer());
-      //       aSubView2->SetImmediateUpdate(false);
-      //       aSubView2->SetWindow(myViewer->View(), Graphic3d_Vec2d(0.5, 1.0),
-      //                            Aspect_TOTP_LEFT_UPPER, Graphic3d_Vec2d(0.5, 0.0));
-
-      //       myViewer->OnSubviewChanged(myViewer->Context(), nullptr, aSubView1);
-      //     }
-      //     myViewer->View()->Invalidate();
-      //     myViewer->update();
-      //   });
-      // }
       {
-        QAction* anActionOpen = new QAction (aMenuWindow);
-        anActionOpen->setText ("Open step file");
-        aMenuWindow->addAction (anActionOpen);
-        connect (anActionOpen, &QAction::triggered, [this]()
-        {
-          QString theFilePath = QFileDialog::getOpenFileName(this, "Open STEP file", "", "STEP Files (*.stp *.step)");
+        // menu bar with Quit item
+        QMenu* aMenuWindow = aMenuBar->addMenu ("&File");
+        // {
+        //   QAction* anActionSplit = new QAction(aMenuWindow);
+        //   anActionSplit->setText("Split Views");
+        //   aMenuWindow->addAction(anActionSplit);
+        //   connect(anActionSplit, &QAction::triggered, [this]()
+        //   {
+        //     if (!myViewer->View()->Subviews().IsEmpty())
+        //     {
+        //       // remove subviews
+        //       myViewer->View()->View()->SetSubviewComposer(false);
+        //       NCollection_Sequence<Handle(V3d_View)> aSubviews = myViewer->View()->Subviews();
+        //       for (const Handle(V3d_View)& aSubviewIter : aSubviews)
+        //       {
+        //         aSubviewIter->Remove();
+        //       }
+        //       myViewer->OnSubviewChanged(myViewer->Context(), nullptr, myViewer->View());
+        //     }
+        //     else
+        //     {
+        //       // create two subviews splitting window horizontally
+        //       myViewer->View()->View()->SetSubviewComposer(true);
 
-          if (!theFilePath.isEmpty()) 
+        //       Handle(V3d_View) aSubView1 = new V3d_View(myViewer->Viewer());
+        //       aSubView1->SetImmediateUpdate(false);
+        //       aSubView1->SetWindow(myViewer->View(), Graphic3d_Vec2d(0.5, 1.0),
+        //                            Aspect_TOTP_LEFT_UPPER, Graphic3d_Vec2d(0.0, 0.0));
+
+        //       Handle(V3d_View) aSubView2 = new V3d_View(myViewer->Viewer());
+        //       aSubView2->SetImmediateUpdate(false);
+        //       aSubView2->SetWindow(myViewer->View(), Graphic3d_Vec2d(0.5, 1.0),
+        //                            Aspect_TOTP_LEFT_UPPER, Graphic3d_Vec2d(0.5, 0.0));
+
+        //       myViewer->OnSubviewChanged(myViewer->Context(), nullptr, aSubView1);
+        //     }
+        //     myViewer->View()->Invalidate();
+        //     myViewer->update();
+        //   });
+        // }
+        {
+          QAction* anActionOpen = new QAction (aMenuWindow);
+          anActionOpen->setText ("Open step file");
+          aMenuWindow->addAction (anActionOpen);
+          connect (anActionOpen, &QAction::triggered, [this]()
           {
-            TCollection_AsciiString theModelPath(theFilePath.toStdString().c_str());
-            
-            bool isOpened = myViewer->OpenStep(theModelPath);
-            if (!isOpened)
+            QString theFilePath = QFileDialog::getOpenFileName(this, "Open STEP file", "", "STEP Files (*.stp *.step)");
+
+            if (!theFilePath.isEmpty()) 
             {
-              QMessageBox::information(0, "Open STEP file", QString()
-                                      + "Error opening the file '"
-                                      + theFilePath
-                                      + "'\n");
+              TCollection_AsciiString theModelPath(theFilePath.toStdString().c_str());
+              
+              bool isOpened = myViewer->OpenStep(theModelPath);
+              if (!isOpened)
+              {
+                QMessageBox::information(0, "Open STEP file", QString()
+                                        + "Error opening the file '"
+                                        + theFilePath
+                                        + "'\n");
+              }
+              else
+              {
+                myViewer->DumpXCafDocumentTree();
+                myViewer->DisplayXCafDocument(true);
+              }
             }
-            else
+          });
+        }
+        {
+          QAction* anActionSave = new QAction (aMenuWindow);
+          anActionSave->setText ("Save as step");
+          aMenuWindow->addAction (anActionSave);
+          connect (anActionSave, &QAction::triggered, [this]()
+          {
+            QString theFilePath = QFileDialog::getSaveFileName(this, "Save STEP File", "", "STEP Files (*.stp *.step)");
+
+            if (!theFilePath.isEmpty())
             {
-              myViewer->DumpXCafDocumentTree();
-              myViewer->DisplayXCafDocument(true);
+              myViewer->SaveAsStep(theFilePath.toStdString().c_str());
             }
-          }
-        });
+          });
+        }
+        {
+          QAction* anActionQuit = new QAction (aMenuWindow);
+          anActionQuit->setText ("Quit");
+          aMenuWindow->addAction (anActionQuit);
+          connect (anActionQuit, &QAction::triggered, [this]()
+          {
+            close();
+          });
+        }
       }
       {
-        QAction* anActionSave = new QAction (aMenuWindow);
-        anActionSave->setText ("Save as step");
-        aMenuWindow->addAction (anActionSave);
-        connect (anActionSave, &QAction::triggered, [this]()
+        QMenu* aMenuWindowView = aMenuBar->addMenu ("&View");
         {
-          QString theFilePath = QFileDialog::getSaveFileName(this, "Save STEP File", "", "STEP Files (*.stp *.step)");
-
-          if (!theFilePath.isEmpty())
+          QAction* anActionViewAll = new QAction (aMenuWindowView);
+          anActionViewAll->setText ("View all");
+          aMenuWindowView->addAction (anActionViewAll);
+          connect (anActionViewAll, &QAction::triggered, [this]()
+          { 
+            std::cout << "Button view all" << std::endl;
+          });
+        }
+        {
+          QAction* anActionViewEntity = new QAction (aMenuWindowView);
+          anActionViewEntity->setText ("View by entity");
+          aMenuWindowView->addAction (anActionViewEntity);
+          connect (anActionViewEntity, &QAction::triggered, [this]()
           {
-            myViewer->SaveAsStep(theFilePath.toStdString().c_str());
-          }
-        });
-      }
-      {
-        QAction* anActionQuit = new QAction (aMenuWindow);
-        anActionQuit->setText ("Quit");
-        aMenuWindow->addAction (anActionQuit);
-        connect (anActionQuit, &QAction::triggered, [this]()
-        {
-          close();
-        });
+            std::cout << "Button view by entity" << std::endl;
+          });
+        }
       }
       setMenuBar (aMenuBar);
     }

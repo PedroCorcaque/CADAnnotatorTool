@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.2)
 
-project (occt-qopenglwidget-sample)
+project (CADAnnotatorTool)
 
 set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/adm/cmake" ${CMAKE_MODULE_PATH})
 set (APP_VERSION_MAJOR 1)
@@ -78,13 +78,14 @@ if (${OpenCASCADE_FOUND})
     include_directories(${OpenCASCADE_LIBRARIES})
 endif()
 
+include_directories(src)
 # main project target
 add_executable (${PROJECT_NAME}
   main.cpp
-  OcctQtViewer.h
-  OcctQtViewer.cpp
-  OcctGlTools.h
-  OcctGlTools.cpp
+  src/OcctQtViewer.h
+  src/OcctQtViewer.cpp
+  src/OcctGlTools.h
+  src/OcctGlTools.cpp
 )
 target_link_libraries (${PROJECT_NAME} PRIVATE Qt5::Widgets ${OpenCASCADE_LIBRARIES} ${OPENGL_LIBRARIES})
 
