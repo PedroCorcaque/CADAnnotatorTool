@@ -166,6 +166,24 @@ public:
           });
         }
       }
+      {
+        QMenu* aMenuWindowSetup = aMenuBar->addMenu ("&Setup");
+        {
+          QAction* anActionAddSetupFile = new QAction (aMenuWindowSetup);
+          anActionAddSetupFile->setText ("Add config file");
+          aMenuWindowSetup->addAction (anActionAddSetupFile);
+          connect (anActionAddSetupFile, &QAction::triggered, [this]()
+          {
+            std::cout << "Button add new setup file" << std::endl;
+
+            QString theFilePath = QFileDialog::getOpenFileName(this, "Open config file", "", "Config files (*.json)");
+            if (!theFilePath.isEmpty())
+            {
+              std::cout << "Config file path: " << theFilePath.toStdString().c_str() << std::endl;
+            }
+          });
+        }
+      }
       setMenuBar (aMenuBar);
     }
     {
