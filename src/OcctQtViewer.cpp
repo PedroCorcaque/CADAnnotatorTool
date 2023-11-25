@@ -260,9 +260,9 @@ OcctQtViewer::OcctQtViewer (QWidget* theParent)
   // note - window will be created later within initializeGL() callback!
   myView = myViewer->CreateView();
   myView->SetImmediateUpdate (false);
-#ifndef __APPLE__
-  myView->ChangeRenderingParams().NbMsaaSamples = 4; // warning - affects performance
-#endif
+  #ifndef __APPLE__
+    myView->ChangeRenderingParams().NbMsaaSamples = 4; // warning - affects performance
+  #endif
   myView->ChangeRenderingParams().ToShowStats = true;
   myView->ChangeRenderingParams().CollectedStats = (Graphic3d_RenderingParams::PerfCounters )
     (Graphic3d_RenderingParams::PerfCounters_FrameRate
@@ -407,6 +407,11 @@ void OcctQtViewer::initializeGL()
   //   Handle(AIS_Shape) aShape = new AIS_Shape (aBox);
   //   myContext->Display (aShape, AIS_Shaded, 0, false);
   // }
+}
+
+void OcctQtViewer::DisplayCube()
+{
+  myContext->Display (myViewCube, 0, 0, false);
 }
 
 // ================================================================
@@ -868,4 +873,10 @@ void OcctQtViewer::DisplayXCafDocumentByPart(bool theToExplode, size_t startInde
   } else {
     std::cout << "There is no more entities" << std::endl;
   }
+}
+
+void OcctQtViewer::ClearContext()
+{
+  myContext->EraseAll(true);
+  DisplayCube();
 }

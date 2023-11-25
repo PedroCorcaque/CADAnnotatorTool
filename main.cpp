@@ -26,6 +26,8 @@
 #include <QSurfaceFormat>
 
 #include <QFileDialog> // To open the models
+#include <QPushButton> // Buttons
+#include <QVBoxLayout> // Buttons
 #include <QAction>
 #include <QLabel>
 #include <QMainWindow>
@@ -49,49 +51,34 @@ class MyMainWindow : public QMainWindow
 public:
   MyMainWindow() : myViewer (nullptr)
   {
+    QWidget* buttonWidget = new QWidget();
     {
+      QVBoxLayout* theLayoutButton = new QVBoxLayout(buttonWidget);
+      
+      QPushButton* theNextButton = new QPushButton ("Next", buttonWidget);
+      theNextButton->setVisible(false);
+      
+      theLayoutButton->addWidget (theNextButton, 0, Qt::AlignVCenter | Qt::AlignRight);
+      connect (theNextButton, &QPushButton::clicked, [this]()
+      {
+        QMessageBox::information (0, "Next button clicked", QString()
+                                  + "You clicked in the next button!");
+      });
+    
+      QPushButton* thePrevButton = new QPushButton ("Previous", buttonWidget);
+      thePrevButton->setVisible(false);
+
+      theLayoutButton->addWidget (thePrevButton, 0, Qt::AlignVCenter | Qt::AlignLeft);
+      connect (thePrevButton, &QPushButton::clicked, [this]()
+      {
+        QMessageBox::information (0, "Previous button clicked", QString()
+                                  + "You clicked in the prev button!");
+      });
+    
       QMenuBar* aMenuBar = new QMenuBar();
       {
         // menu bar with Quit item
         QMenu* aMenuWindow = aMenuBar->addMenu ("&File");
-        // {
-        //   QAction* anActionSplit = new QAction(aMenuWindow);
-        //   anActionSplit->setText("Split Views");
-        //   aMenuWindow->addAction(anActionSplit);
-        //   connect(anActionSplit, &QAction::triggered, [this]()
-        //   {
-        //     if (!myViewer->View()->Subviews().IsEmpty())
-        //     {
-        //       // remove subviews
-        //       myViewer->View()->View()->SetSubviewComposer(false);
-        //       NCollection_Sequence<Handle(V3d_View)> aSubviews = myViewer->View()->Subviews();
-        //       for (const Handle(V3d_View)& aSubviewIter : aSubviews)
-        //       {
-        //         aSubviewIter->Remove();
-        //       }
-        //       myViewer->OnSubviewChanged(myViewer->Context(), nullptr, myViewer->View());
-        //     }
-        //     else
-        //     {
-        //       // create two subviews splitting window horizontally
-        //       myViewer->View()->View()->SetSubviewComposer(true);
-
-        //       Handle(V3d_View) aSubView1 = new V3d_View(myViewer->Viewer());
-        //       aSubView1->SetImmediateUpdate(false);
-        //       aSubView1->SetWindow(myViewer->View(), Graphic3d_Vec2d(0.5, 1.0),
-        //                            Aspect_TOTP_LEFT_UPPER, Graphic3d_Vec2d(0.0, 0.0));
-
-        //       Handle(V3d_View) aSubView2 = new V3d_View(myViewer->Viewer());
-        //       aSubView2->SetImmediateUpdate(false);
-        //       aSubView2->SetWindow(myViewer->View(), Graphic3d_Vec2d(0.5, 1.0),
-        //                            Aspect_TOTP_LEFT_UPPER, Graphic3d_Vec2d(0.5, 0.0));
-
-        //       myViewer->OnSubviewChanged(myViewer->Context(), nullptr, aSubView1);
-        //     }
-        //     myViewer->View()->Invalidate();
-        //     myViewer->update();
-        //   });
-        // }
         {
           QAction* anActionOpen = new QAction (aMenuWindow);
           anActionOpen->setText ("Open step file");
@@ -150,18 +137,26 @@ public:
           QAction* anActionViewAll = new QAction (aMenuWindowView);
           anActionViewAll->setText ("View all");
           aMenuWindowView->addAction (anActionViewAll);
-          connect (anActionViewAll, &QAction::triggered, [this]()
+          connect (anActionViewAll, &QAction::triggered, [this, theNextButton, thePrevButton]()
           { 
             std::cout << "Button view all" << std::endl;
+            myViewer->ClearContext();
+
+            theNextButton->setVisible(false);
+            thePrevButton->setVisible(false);
           });
         }
         {
           QAction* anActionViewEntity = new QAction (aMenuWindowView);
           anActionViewEntity->setText ("View by entity");
           aMenuWindowView->addAction (anActionViewEntity);
-          connect (anActionViewEntity, &QAction::triggered, [this]()
+          connect (anActionViewEntity, &QAction::triggered, [this, theNextButton, thePrevButton]()
           {
             std::cout << "Button view by entity" << std::endl;
+            myViewer->ClearContext();
+
+            theNextButton->setVisible(true);
+            thePrevButton->setVisible(true);
           });
         }
       }
@@ -186,8 +181,9 @@ public:
                                   + myViewer->getGlInfo());
         });
       }
+
+      QWidget* aSliderBox = new QWidget();
       {
-        QWidget* aSliderBox = new QWidget();
         QHBoxLayout* aSliderLayout = new QHBoxLayout (aSliderBox);
         {
           QLabel* aSliderLabel = new QLabel ("Background");
@@ -210,20 +206,18 @@ public:
             const float aVal = theValue / 255.0f;
             const Quantity_Color aColor (aVal, aVal, aVal, Quantity_TOC_sRGB);
 
-            for (const Handle(V3d_View)& aSubviewIter : myViewer->View()->Subviews())
-            {
-              aSubviewIter->SetBgGradientColors (aColor, Quantity_NOC_BLACK, Aspect_GradientFillMethod_Elliptical);
-              aSubviewIter->Invalidate();
-            }
             //myViewer->View()->SetBackgroundColor (aColor);
             myViewer->View()->SetBgGradientColors (aColor, Quantity_NOC_BLACK, Aspect_GradientFillMethod_Elliptical);
             myViewer->View()->Invalidate();
             myViewer->update();
           });
         }
-        aLayout->addWidget (aSliderBox);
+        // aLayout->addWidget (aSliderBox);
       }
       setCentralWidget (myViewer);
+
+      myViewer->layout()->addWidget(aSliderBox);
+      myViewer->layout()->addWidget(buttonWidget);
     }
   }
 };

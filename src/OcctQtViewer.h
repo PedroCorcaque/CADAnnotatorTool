@@ -89,6 +89,7 @@ private: // My implementations
   virtual void ProcessExpose() override;  
   virtual void ProcessConfigure(bool theIsResized) override;
   virtual void ProcessInput() override;
+  void DisplayCube();
 
 public: // My implementations
 
@@ -98,6 +99,8 @@ public: // My implementations
   void DumpXCafDocumentTree();
   void DisplayXCafDocument(bool theToExplode);
   void DisplayXCafDocumentByPart(bool theToExplode, size_t startIndex);
+
+  void ClearContext();
 
 protected: // OpenGL events
 
