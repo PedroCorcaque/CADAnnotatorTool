@@ -876,9 +876,17 @@ void OcctQtViewer::DisplayXCafDocumentByPart(bool theToExplode, size_t startInde
       entityName->setText(QString() + "Current class: " + QString::fromUtf16(aNodeName->Get().ToExtString()));
     } else {
       std::cout << "This entity don't has a class!" << std::endl;
+
+      entityName->setText(QString() + "Current class: ");
     }
   } else {
     std::cout << "There is no more entities" << std::endl;
+
+    QMessageBox::information(0, "No more entities", QString()
+                             + "There no more entities to show.\n"
+                             + "You can save the model clicking in File->Save as step.\n");
+
+    entityName->setText(QString() + "Current class: ");
   }
 }
 
