@@ -31,6 +31,7 @@
 #include <Standard_WarningsDisable.hxx>
 #include <QApplication>
 #include <QMessageBox>
+#include <QInputDialog>
 #include <QMouseEvent>
 #include <Standard_WarningsRestore.hxx>
 
@@ -753,15 +754,22 @@ void OcctQtViewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theC
       Handle(XCAFPrs_AISObject) anXCafPrs = Handle(XCAFPrs_AISObject)::DownCast (aSelIter->Selectable());
       if (anXCafPrs.IsNull()) { continue; }
 
-      std::cout << "Type the new class for this entity: " << std::endl;
-      std::string aNewClass;
-      std::cin >> aNewClass;
+      // std::cout << "Type the new class for this entity: " << std::endl;
+      // std::string aNewClass;
+      // std::cin >> aNewClass;
 
-      TCollection_ExtendedString theNewClass;
-      theNewClass = aNewClass.c_str();
+      QString aNewClass = QInputDialog::getText(this, 
+                                                tr("Enter new class"), 
+                                                tr("Type the new class for this entity:"),
+                                                QLineEdit::Normal,
+                                                QString(),
+                                                nullptr,
+                                                Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+
+      TCollection_ExtendedString theNewClass = aNewClass.toStdWString().c_str();
 
       Handle(TDataStd_Name) theNewClass_Name = new TDataStd_Name();
-      theNewClass_Name->Set(aNewClass.c_str());
+      theNewClass_Name->Set(theNewClass);
 
       Handle_TDF_Attribute theNewClass_Attr = theNewClass_Name;
 
@@ -891,7 +899,7 @@ void OcctQtViewer::DisplayXCafDocumentByPart(bool theToExplode, size_t startInde
                              + "There no more entities to show.\n"
                              + "You can save the model clicking in File->Save as step.\n");
 
-    entityName->setText(QString() + "Current class: ");
+    ShowCurrentClass();
   }
 }
 
