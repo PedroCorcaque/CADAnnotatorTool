@@ -31,6 +31,7 @@
 #include <QVBoxLayout> // Buttons
 #include <QAction>
 #include <QLabel>
+#include <QListWidgetItem>
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -58,6 +59,8 @@ public:
   MyMainWindow() : myViewer (nullptr)
   {
     QWidget* buttonWidget = new QWidget();
+    QListWidget* listWidget = new QListWidget();
+    listWidget->setMaximumWidth(120);
     {
       QVBoxLayout* theLayoutButton = new QVBoxLayout(buttonWidget);
       
@@ -178,7 +181,7 @@ public:
           QAction* anActionAddSetupFile = new QAction (aMenuWindowSetup);
           anActionAddSetupFile->setText ("Add config file");
           aMenuWindowSetup->addAction (anActionAddSetupFile);
-          connect (anActionAddSetupFile, &QAction::triggered, [this]()
+          connect (anActionAddSetupFile, &QAction::triggered, [this, listWidget]()
           {
             std::cout << "Button add new setup file" << std::endl;
 
@@ -210,19 +213,39 @@ public:
                                      + "Object 'classes' not found.\n");
               }
 
+              std::vector<OcctLabelTools::Label> theLabels;
               try
               {
-                std::vector<OcctLabelTools::Label> theLabels; 
                 theLabels = OcctLabelTools::createLabelsFromFile(configData["classes"]);
 
                 myViewer->SetLabels(theLabels);
               }
               catch(const std::exception& e)
               {
-                std::cerr << e.what() << '\n';
+                QMessageBox::critical(0, "Json format error", QString()
+                                      + "Check if the 'classes' array has objects with 'class' name.\n");
               }
               
+              for (const auto& theLabel : theLabels)
+              {
+                QListWidgetItem* item = new QListWidgetItem();
+                item->setSizeHint(QSize(200, 50));
 
+                QWidget* aLabelWidget = new QWidget();
+                QHBoxLayout* aLabelLayout = new QHBoxLayout(aLabelWidget);
+
+                QLabel* classNameLabel = new QLabel(theLabel.nameAsString.c_str());
+                aLabelLayout->addWidget(classNameLabel);
+
+                QLabel* theColorBlock = new QLabel();
+                theColorBlock->setFixedSize(20, 20);
+                theColorBlock->setStyleSheet(QString("background-color: %1;").arg(Quantity_Color::ColorToHex(theLabel.color).ToCString()));
+                aLabelLayout->addWidget(theColorBlock);
+                
+                item->setSizeHint(aLabelWidget->sizeHint());
+                listWidget->addItem(item);
+                listWidget->setItemWidget(item, aLabelWidget);
+              }
             }
           });
         }
@@ -285,6 +308,7 @@ public:
 
       myViewer->layout()->addWidget(aSliderBox);
       myViewer->layout()->addWidget(buttonWidget);
+      myViewer->layout()->addWidget(listWidget);
     }
   }
 private:

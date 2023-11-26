@@ -28,7 +28,7 @@ std::vector<OcctLabelTools::Label> OcctLabelTools::createLabelsFromFile(json aLa
         
         counter++;
 
-        OcctLabelTools::Label aLabel (theClassName_Attr, theColor);
+        OcctLabelTools::Label aLabel (theClassName_Attr, theColor, className);
         theLabels.push_back(aLabel);
     }
 
