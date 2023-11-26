@@ -749,44 +749,53 @@ TCollection_AsciiString OcctQtViewer::getXCafNodePathNames(const XCAFPrs_Documen
 void OcctQtViewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theCtx,
                                       const Handle(V3d_View)& theView)
 {
-   for (const Handle(SelectMgr_EntityOwner)& aSelIter : theCtx->Selection()->Objects())
+  for (const Handle(SelectMgr_EntityOwner)& aSelIter : theCtx->Selection()->Objects())
+  {
+    Handle(XCAFPrs_AISObject) anXCafPrs = Handle(XCAFPrs_AISObject)::DownCast (aSelIter->Selectable());
+    if (anXCafPrs.IsNull()) { continue; }
+
+    // std::cout << "Type the new class for this entity: " << std::endl;
+    // std::string aNewClass;
+    // std::cin >> aNewClass;
+
+    if (myLabels.empty())
     {
-      Handle(XCAFPrs_AISObject) anXCafPrs = Handle(XCAFPrs_AISObject)::DownCast (aSelIter->Selectable());
-      if (anXCafPrs.IsNull()) { continue; }
-
-      // std::cout << "Type the new class for this entity: " << std::endl;
-      // std::string aNewClass;
-      // std::cin >> aNewClass;
-
-      QString aNewClass = QInputDialog::getText(this, 
-                                                tr("Enter new class"), 
-                                                tr("Type the new class for this entity:"),
-                                                QLineEdit::Normal,
-                                                QString(),
-                                                nullptr,
-                                                Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-
-      TCollection_ExtendedString theNewClass = aNewClass.toStdWString().c_str();
-
-      Handle(TDataStd_Name) theNewClass_Name = new TDataStd_Name();
-      theNewClass_Name->Set(theNewClass);
-
-      Handle_TDF_Attribute theNewClass_Attr = theNewClass_Name;
-
-      if (anXCafPrs->GetLabel().ForgetAttribute(TDataStd_Name::GetID())) {
-          std::cout << "The old class was removed." << std::endl;
-      }
-      try {
-          anXCafPrs->GetLabel().AddAttribute(theNewClass_Attr, true);   
-
-          ShowCurrentClass(theNewClass);
-      } catch (...) {
-          std::cerr << "An error occured on set a new class" << std::endl;
-
-          QMessageBox::critical(0, "Error setting new class", QString()
-                                + "An error occured on set a new class.\n");
-      }
+      QMessageBox::warning(0, "No classes found!", QString()
+                           + "There is no class configured.\n"
+                           + "Please, add a new config file with the classes.\n"
+                           + "Setup->Add config file");
+      continue;
     }
+
+    QString aNewClass = QInputDialog::getText(this, 
+                                              tr("Enter new class"), 
+                                              tr("Type the new class for this entity:"),
+                                              QLineEdit::Normal,
+                                              QString(),
+                                              nullptr,
+                                              Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+
+    TCollection_ExtendedString theNewClass = aNewClass.toStdWString().c_str();
+
+    Handle(TDataStd_Name) theNewClass_Name = new TDataStd_Name();
+    theNewClass_Name->Set(theNewClass);
+
+    Handle_TDF_Attribute theNewClass_Attr = theNewClass_Name;
+
+    if (anXCafPrs->GetLabel().ForgetAttribute(TDataStd_Name::GetID())) {
+        std::cout << "The old class was removed." << std::endl;
+    }
+    try {
+        anXCafPrs->GetLabel().AddAttribute(theNewClass_Attr, true);   
+
+        ShowCurrentClass(theNewClass);
+    } catch (...) {
+        std::cerr << "An error occured on set a new class" << std::endl;
+
+        QMessageBox::critical(0, "Error setting new class", QString()
+                              + "An error occured on set a new class.\n");
+    }
+  }
 }
 
 void OcctQtViewer::ProcessExpose()
