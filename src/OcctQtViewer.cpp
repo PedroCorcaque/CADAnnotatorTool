@@ -25,7 +25,7 @@
 #include <OpenGl_Context.hxx>
 
 #include "OcctQtViewer.h"
-
+#include "OcctLabelTools.hpp"
 #include "OcctGlTools.h"
 
 #include <Standard_WarningsDisable.hxx>
@@ -774,6 +774,16 @@ void OcctQtViewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theC
                                               QString(),
                                               nullptr,
                                               Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+
+    std::string newClassName = aNewClass.toStdString();
+    auto it = std::find_if(myLabels.begin(), myLabels.end(), [newClassName](const OcctLabelTools::Label& label) {
+            return label.nameAsString == newClassName;
+        });
+    if (it == myLabels.end())
+    {
+      QMessageBox::warning(0, "Invalid class", QString() + "The entered class doesn't exist in the config file. Please, try again.");
+      continue;
+    }
 
     TCollection_ExtendedString theNewClass = aNewClass.toStdWString().c_str();
 
