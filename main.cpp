@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
 #include "OcctQtViewer.h"
+#include "OcctLabelTools.hpp"
 
 #include <Standard_WarningsDisable.hxx>
 #include <QApplication>
@@ -186,20 +187,42 @@ public:
             {
               std::cout << "Config file path: " << theFilePath.toStdString().c_str() << std::endl;
 
+              std::ifstream configFile (theFilePath.toStdString());
+              json configData;
               try
               {
-                std::ifstream configFile (theFilePath.toStdString());
-                json configData;
-                configFile >> configData;
-
+                configData = json::parse(configFile);
                 configFile.close();
               }
               catch (...)
               {
                 QMessageBox::warning(0, "File load error", QString()
                                     + "Error loading config file.\n\n"
-                                    + "Check that the file is in the correct format.\n");
+                                    + "Check that the file is in the correct format (json).\n");
+                configFile.close();
+                return;
               }
+              
+              if (!configData.contains("classes"))
+              {
+                QMessageBox::critical(0, "Json format error", QString()
+                                     + "The format of the json file is wrong.\n"
+                                     + "Object 'classes' not found.\n");
+              }
+
+              try
+              {
+                std::vector<OcctLabelTools::Label> theLabels; 
+                theLabels = OcctLabelTools::createLabelsFromFile(configData["classes"]);
+
+                myViewer->SetLabels(theLabels);
+              }
+              catch(const std::exception& e)
+              {
+                std::cerr << e.what() << '\n';
+              }
+              
+
             }
           });
         }

@@ -86,6 +86,8 @@ add_executable (${PROJECT_NAME}
   src/OcctQtViewer.cpp
   src/OcctGlTools.h
   src/OcctGlTools.cpp
+  src/OcctLabelTools.hpp    
+  src/OcctLabelTools.cpp  
 )
 target_link_libraries (${PROJECT_NAME} PRIVATE Qt5::Widgets ${OpenCASCADE_LIBRARIES} ${OPENGL_LIBRARIES})
 

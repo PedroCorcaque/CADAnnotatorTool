@@ -38,6 +38,8 @@
 #include <TDF_Tool.hxx>
 #include <AIS_TextLabel.hxx>
 
+#include "OcctLabelTools.hpp"
+
 class AIS_ViewCube;
 
 //! OCCT 3D View.
@@ -105,6 +107,7 @@ public: // My implementations
   void DisplayXCafDocumentByPart(bool theToExplode, size_t startIndex);
 
   void ClearContext();
+  void SetLabels(std::vector<OcctLabelTools::Label> theLabels);
 
 protected: // OpenGL events
 
@@ -145,6 +148,8 @@ private:
   Handle(TDocStd_Application)    myXdeApp;
 
   QLabel* entityName;
+
+  std::vector<OcctLabelTools::Label> myLabels;
 
   QString myGlInfo;
   bool myIsCoreProfile;

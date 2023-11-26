@@ -769,7 +769,7 @@ void OcctQtViewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theC
           std::cout << "The old class was removed." << std::endl;
       }
       try {
-          anXCafPrs->GetLabel().AddAttribute(theNewClass_Attr, true);
+          anXCafPrs->GetLabel().AddAttribute(theNewClass_Attr, true);   
 
           ShowCurrentClass(theNewClass);
       } catch (...) {
@@ -909,4 +909,9 @@ void OcctQtViewer::ShowCurrentClass(TCollection_ExtendedString aNodeNameGot) con
 void OcctQtViewer::ShowCurrentClass() const
 {
   entityName->setText(QString() + "Current class: ");
+}
+
+void OcctQtViewer::SetLabels(std::vector<OcctLabelTools::Label> theLabels)
+{
+  myLabels = theLabels;
 }
