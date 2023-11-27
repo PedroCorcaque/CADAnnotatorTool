@@ -61,6 +61,7 @@ public:
     QWidget* buttonWidget = new QWidget();
     QListWidget* listWidget = new QListWidget();
     listWidget->setMaximumWidth(120);
+    listWidget->setStyleSheet(QString(" border-radius: 10px; "));
     {
       QVBoxLayout* theLayoutButton = new QVBoxLayout(buttonWidget);
       
@@ -245,6 +246,7 @@ public:
                 item->setSizeHint(aLabelWidget->sizeHint());
                 listWidget->addItem(item);
                 listWidget->setItemWidget(item, aLabelWidget);
+
               }
             }
           });
@@ -304,11 +306,14 @@ public:
         }
         // aLayout->addWidget (aSliderBox);
       }
+      aLayout->addWidget(aSliderBox);
+      aLayout->addWidget(buttonWidget);
+      aLayout->addWidget(listWidget, 0, Qt::AlignRight);
       setCentralWidget (myViewer);
 
-      myViewer->layout()->addWidget(aSliderBox);
-      myViewer->layout()->addWidget(buttonWidget);
-      myViewer->layout()->addWidget(listWidget);
+      // myViewer->layout()->addWidget(aSliderBox);
+      // myViewer->layout()->addWidget(buttonWidget);
+      // myViewer->layout()->addWidget(listWidget);
     }
   }
 private:
