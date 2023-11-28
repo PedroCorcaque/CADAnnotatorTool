@@ -83,9 +83,9 @@ private: // My implementations
 
   void newDocument();
   bool createXCafApp();
-  static TCollection_AsciiString getXCafNodePathNames(const XCAFPrs_DocumentExplorer& theExp,
-                                                      const bool theIsInstanceName,
-                                                      const int theLowerDepth = 0);
+  // static TCollection_AsciiString getXCafNodePathNames(const XCAFPrs_DocumentExplorer& theExp,
+  //                                                     const bool theIsInstanceName,
+  //                                                     const int theLowerDepth = 0);
 
   virtual void OnSelectionChanged(const Handle(AIS_InteractiveContext)& theCtx,
                                   const Handle(V3d_View)& theView) override;
@@ -108,6 +108,10 @@ public: // My implementations
 
   void ClearContext();
   void SetLabels(std::vector<OcctLabelTools::Label> theLabels);
+  Handle(TDocStd_Document) GetXdeDoc() const { return myXdeDoc; }
+  static TCollection_AsciiString getXCafNodePathNames(const XCAFPrs_DocumentExplorer& theExp,
+                                                      const bool theIsInstanceName,
+                                                      const int theLowerDepth = 0);
 
 protected: // OpenGL events
 

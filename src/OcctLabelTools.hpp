@@ -17,7 +17,11 @@ namespace OcctLabelTools
         Handle_TDF_Attribute label;
         Quantity_Color color;
 
-        Label(Handle_TDF_Attribute aLabel, Quantity_Color aColor, std::string aName) : label(aLabel), color(aColor), nameAsString(aName) {};
+        Label(Handle_TDF_Attribute aLabel, Quantity_Color aColor, std::string aName) {
+            label = aLabel;
+            color = aColor;
+            nameAsString = aName;
+        };
 
         friend std::ostream& operator<<(std::ostream& os, const Label& theLabel)
         {

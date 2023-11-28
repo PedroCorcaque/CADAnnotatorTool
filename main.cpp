@@ -26,6 +26,9 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+
 #include <QFileDialog> // To open the models
 #include <QPushButton> // Buttons
 #include <QVBoxLayout> // Buttons
@@ -114,7 +117,8 @@ public:
               else
               {
                 myViewer->DumpXCafDocumentTree();
-                myViewer->DisplayXCafDocument(true);
+                myViewer->DisplayXCafDocument(true);    
+                UpdateEntityTree();            
               }
             }
           });
@@ -306,9 +310,21 @@ public:
         }
         // aLayout->addWidget (aSliderBox);
       }
+      {
+        treeWidget = new QTreeWidget();
+        treeWidget->setHeaderLabel("Entities");
+        treeWidget->setMinimumWidth(50);
+        treeWidget->setMaximumWidth(200);
+
+        connect(treeWidget, &QTreeWidget::itemClicked, [this](QTreeWidgetItem* item)
+        {
+          QString entityName = item->text(0);
+        });
+      }
       aLayout->addWidget(aSliderBox);
       aLayout->addWidget(buttonWidget);
       aLayout->addWidget(listWidget, 0, Qt::AlignRight);
+      aLayout->addWidget(treeWidget);
       setCentralWidget (myViewer);
 
       // myViewer->layout()->addWidget(aSliderBox);
@@ -316,8 +332,25 @@ public:
       // myViewer->layout()->addWidget(listWidget);
     }
   }
+  void UpdateEntityTree()
+  {
+    treeWidget->clear();
+    if (myViewer)
+    {
+      myViewer->DumpXCafDocumentTree();
+      for (XCAFPrs_DocumentExplorer aDocExp(myViewer->GetXdeDoc(), XCAFPrs_DocumentExplorerFlags_None); aDocExp.More(); aDocExp.Next())
+      {
+        TCollection_AsciiString aName = myViewer->getXCafNodePathNames(aDocExp, false, aDocExp.CurrentDepth());
+        aName = TCollection_AsciiString(aDocExp.CurrentDepth()*2, ' ') + aName;
+
+        QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << aName.ToCString());
+        treeWidget->addTopLevelItem(item);
+      }
+    }
+  }
 private:
   size_t currentIndexEntity = 0;
+  QTreeWidget* treeWidget;
 };
 
 int main (int theNbArgs, char** theArgVec)

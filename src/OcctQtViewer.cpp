@@ -50,6 +50,8 @@
 #include <STEPControl_Controller.hxx> // To open step
 #include <BinXCAFDrivers.hxx>
 #include <XCAFPrs_AISObject.hxx>
+#include <XCAFDoc_ColorTool.hxx>
+#include <XCAFDoc_DocumentTool.hxx>
 
 namespace
 {
@@ -764,10 +766,10 @@ void OcctQtViewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theC
                            + "There is no class configured.\n"
                            + "Please, add a new config file with the classes.\n"
                            + "Setup->Add config file");
-      continue;
+      break;
     }
 
-    QString aNewClass = QInputDialog::getText(this, 
+    QString aNewClass = QInputDialog::getText(0, 
                                               tr("Enter new class"), 
                                               tr("Type the new class for this entity:"),
                                               QLineEdit::Normal,
@@ -782,7 +784,7 @@ void OcctQtViewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theC
     if (it == myLabels.end())
     {
       QMessageBox::warning(0, "Invalid class", QString() + "The entered class doesn't exist in the config file. Please, try again.");
-      continue;
+      break;
     }
 
     TCollection_ExtendedString theNewClass = aNewClass.toStdWString().c_str();
@@ -796,14 +798,16 @@ void OcctQtViewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theC
         std::cout << "The old class was removed." << std::endl;
     }
     try {
-        anXCafPrs->GetLabel().AddAttribute(theNewClass_Attr, true);   
+        anXCafPrs->GetLabel().AddAttribute(theNewClass_Attr, true);
 
-        ShowCurrentClass(theNewClass);
+        ShowCurrentClass(theNewClass); // on top-left corner
+
     } catch (...) {
         std::cerr << "An error occured on set a new class" << std::endl;
 
         QMessageBox::critical(0, "Error setting new class", QString()
                               + "An error occured on set a new class.\n");
+                              std::cout << "aqui3" << std::endl;
     }
   }
 }
