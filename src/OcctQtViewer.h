@@ -25,6 +25,7 @@
 #include <Standard_WarningsDisable.hxx>
 #include <QOpenGLWidget>
 #include <QLabel>
+#include <QWidget>
 #include <Standard_WarningsRestore.hxx>
 
 #include <AIS_InteractiveContext.hxx>
@@ -46,6 +47,10 @@ class AIS_ViewCube;
 class OcctQtViewer : public QOpenGLWidget, public AIS_ViewController
 {
   Q_OBJECT
+
+signals:
+  void entityNameChanged(const QString& newName);
+
 public:
 
   //! Main constructor.
@@ -157,6 +162,8 @@ private:
 
   QString myGlInfo;
   bool myIsCoreProfile;
+
+  QWidget myMainWindow;
 
 };
 

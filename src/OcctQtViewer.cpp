@@ -233,7 +233,8 @@ public:
 // ================================================================
 OcctQtViewer::OcctQtViewer (QWidget* theParent)
 : QOpenGLWidget (theParent),
-  myIsCoreProfile (true)
+  myIsCoreProfile (true),
+  myMainWindow (theParent)
 {
   Handle(Aspect_DisplayConnection) aDisp = new Aspect_DisplayConnection();
   Handle(OpenGl_GraphicDriver) aDriver = new OpenGl_GraphicDriver (aDisp, false);
@@ -801,6 +802,8 @@ void OcctQtViewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theC
         anXCafPrs->GetLabel().AddAttribute(theNewClass_Attr, true);
 
         ShowCurrentClass(theNewClass); // on top-left corner
+
+        emit entityNameChanged(aNewClass);
 
     } catch (...) {
         std::cerr << "An error occured on set a new class" << std::endl;

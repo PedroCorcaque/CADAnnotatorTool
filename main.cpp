@@ -59,7 +59,7 @@ class MyMainWindow : public QMainWindow
 {
   OcctQtViewer* myViewer;
 public:
-  MyMainWindow() : myViewer (nullptr)
+  MyMainWindow() : myViewer ()
   {
     QWidget* buttonWidget = new QWidget();
     QListWidget* listWidget = new QListWidget();
@@ -320,6 +320,8 @@ public:
         {
           QString entityName = item->text(0);
         });
+
+        connect(myViewer, &OcctQtViewer::entityNameChanged, this, &MyMainWindow::handleEntityNameChange);
       }
       aLayout->addWidget(aSliderBox);
       aLayout->addWidget(buttonWidget);
@@ -348,6 +350,13 @@ public:
       }
     }
   }
+
+public slots:
+  void handleEntityNameChange(const QString& newName) {
+    std::cout << "To aqui corno" << std::endl;
+    UpdateEntityTree();
+  }
+
 private:
   size_t currentIndexEntity = 0;
   QTreeWidget* treeWidget;
