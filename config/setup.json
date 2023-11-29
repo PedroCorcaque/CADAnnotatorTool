@@ -1,16 +1,13 @@
 {
-    "window": {
-        "width": 800,
-        "height": 600
-    },
     "classes": [
         {
-            "name": "tube",
-            "color": "#110000"
+            "class": "class1"
         },
         {
-            "name": "wall",
-            "color": "#000011"
+            "class": "class2"
+        },
+        {
+            "class": "class3"
         }
     ]
 }
