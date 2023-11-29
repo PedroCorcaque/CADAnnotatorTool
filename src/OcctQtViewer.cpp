@@ -52,6 +52,7 @@
 #include <XCAFPrs_AISObject.hxx>
 #include <XCAFDoc_ColorTool.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
+#include <AIS_ListOfInteractive.hxx>
 
 namespace
 {
@@ -810,7 +811,6 @@ void OcctQtViewer::OnSelectionChanged(const Handle(AIS_InteractiveContext)& theC
 
         QMessageBox::critical(0, "Error setting new class", QString()
                               + "An error occured on set a new class.\n");
-                              std::cout << "aqui3" << std::endl;
     }
   }
 }
@@ -948,4 +948,53 @@ void OcctQtViewer::ShowCurrentClass() const
 void OcctQtViewer::SetLabels(std::vector<OcctLabelTools::Label> theLabels)
 {
   myLabels = theLabels;
+}
+
+void OcctQtViewer::highlightEntity(const QString& entityName, const QString& entityId)
+{
+  myContext->ClearSelected(false);
+  Handle(AIS_InteractiveObject) anObject;
+  AIS_ListOfInteractive aSelectedList;
+  myContext->DisplayedObjects(aSelectedList);
+  for (AIS_ListIteratorOfListOfInteractive aSelIter(aSelectedList); aSelIter.More(); aSelIter.Next()) {
+    anObject = aSelIter.Value();
+    Handle(XCAFPrs_AISObject) anXCafPrs = Handle(XCAFPrs_AISObject)::DownCast(anObject);
+    if (anXCafPrs.IsNull()) { continue; }
+
+    Handle(TDataStd_Name) entityNameAttr;
+    if (anXCafPrs->GetLabel().FindAttribute(TDataStd_Name::GetID(), entityNameAttr))
+    {
+      TCollection_ExtendedString currentEntityName = entityNameAttr->Get();
+      
+      Handle(TCollection_HAsciiString) currentEntityId = Handle(TCollection_HAsciiString)::DownCast (anXCafPrs->GetOwner());
+
+      // std::cout << "===========" << std::endl;
+      // std::cout << "currentEntityName:" << currentEntityName << std::endl;
+      // std::cout << "entityName:" << entityName.toStdString() << std::endl;
+      // std::cout << (QString::fromUtf16(currentEntityName.ToExtString()) == entityName.trimmed()) << std::endl;
+      // std::cout << "===========" << std::endl;
+
+      std::cout << "===========" << std::endl;
+      std::cout << "currentEntityId:" << currentEntityId->ToCString() << std::endl;
+      std::cout << "entityId:" << entityId.toStdString() << std::endl;
+      std::cout << (QString::fromLatin1(currentEntityId->ToCString()) == entityId) << std::endl;
+      std::cout << "===========" << std::endl;
+
+      if ((QString::fromUtf16(currentEntityName.ToExtString()).trimmed() == entityName.trimmed()) && 
+          (QString::fromLatin1(currentEntityId->ToCString()) == entityId))
+      {
+        myContext->AddOrRemoveSelected(anXCafPrs, true);
+
+        myView->Redraw();
+        break;
+      }
+    }
+  }
+}
+
+TCollection_AsciiString OcctQtViewer::getEntityId(const XCAFPrs_DocumentNode& aDocNode)
+{
+  // Handle(XCAFPrs_AISObject) aPrs = new XCAFPrs_AISObject (aDocNode.RefLabel);
+  TCollection_AsciiString anId = aDocNode.Id;
+  return (!anId.IsEmpty() ? anId : "Don't have and id");
 }

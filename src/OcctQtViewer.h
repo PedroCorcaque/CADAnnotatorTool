@@ -118,6 +118,9 @@ public: // My implementations
                                                       const bool theIsInstanceName,
                                                       const int theLowerDepth = 0);
 
+  void highlightEntity(const QString& entityName, const QString& entityId);
+  TCollection_AsciiString getEntityId(const XCAFPrs_DocumentNode& aDocNode);
+
 protected: // OpenGL events
 
   virtual void initializeGL() override;

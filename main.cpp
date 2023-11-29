@@ -287,7 +287,7 @@ public:
           aSliderLabel->setGeometry (50, 50, 50, 50);
           aSliderLabel->adjustSize();
           aSliderLayout->addWidget (aSliderLabel);
-        }
+        } 
         {
           QSlider* aSlider = new QSlider (Qt::Horizontal);
           aSlider->setRange (0, 255);
@@ -319,6 +319,22 @@ public:
         connect(treeWidget, &QTreeWidget::itemClicked, [this](QTreeWidgetItem* item)
         {
           QString entityName = item->text(0);
+          std::cout << "Entrou aqui" << std::endl;
+
+          QVariant entityId = item->data(0, Qt::UserRole);
+          if (entityId.isValid())
+          {
+            QString entityInfo = entityId.toString();
+            std::cout << "Invisible data: " << entityInfo.toStdString() << std::endl;
+            
+            myViewer->highlightEntity(entityName, entityInfo);
+          }
+          else
+          {
+             myViewer->highlightEntity(entityName, QString());
+          }
+
+          
         });
 
         connect(myViewer, &OcctQtViewer::entityNameChanged, this, &MyMainWindow::handleEntityNameChange);
@@ -345,7 +361,14 @@ public:
         TCollection_AsciiString aName = myViewer->getXCafNodePathNames(aDocExp, false, aDocExp.CurrentDepth());
         aName = TCollection_AsciiString(aDocExp.CurrentDepth()*2, ' ') + aName;
 
+        //////// Gambiarra
+        const XCAFPrs_DocumentNode& aNode = aDocExp.Current(aDocExp.CurrentDepth());
+        TCollection_AsciiString entityId = myViewer->getEntityId(aNode);
+        //////// Gambiarra
+
+
         QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << aName.ToCString());
+        item->setData(0, Qt::UserRole, QVariant(entityId.ToCString()));
         treeWidget->addTopLevelItem(item);
       }
     }
