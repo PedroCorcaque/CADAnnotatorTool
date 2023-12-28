@@ -565,6 +565,9 @@ void OcctQtViewer::updateView()
 // ================================================================
 void OcctQtViewer::paintGL()
 {
+  if(!this->mtx.try_lock())
+    return;
+
   if (myView->Window().IsNull())
   {
     return;
@@ -613,7 +616,9 @@ void OcctQtViewer::paintGL()
   // flush pending input events and redraw the viewer
   Handle(V3d_View) aView = !myFocusView.IsNull() ? myFocusView : myView;
   aView->InvalidateImmediate();
+  // this->mtx.lock();
   FlushViewEvents(myContext, aView, true);
+  this->mtx.unlock();
 }
 
 // ================================================================

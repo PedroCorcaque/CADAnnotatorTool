@@ -38,6 +38,7 @@
 #include <TDataStd_Name.hxx>
 #include <TDF_Tool.hxx>
 #include <AIS_TextLabel.hxx>
+#include <mutex>
 
 #include "OcctLabelTools.hpp"
 
@@ -168,6 +169,7 @@ private:
 
   QWidget myMainWindow;
 
+  std::mutex mtx;
 };
 
 #endif // _OcctQtViewer_HeaderFile
